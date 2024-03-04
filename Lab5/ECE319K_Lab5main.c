@@ -150,7 +150,7 @@ int main4(void){ // main4
 // TExaSdisplay scope uses TimerG7, ADC0
 // To perform dynamic testing, there can be no breakpoints in your code
 // DACout will be a sine wave with period/frequency depending on which key is pressed
-int main(void){// main5
+int main5(void){// main5
   Clock_Init80MHz(0);
   LaunchPad_Init();
   Lab5Grader(2);   // 1=logic analyzer, 2=Scope, 3=grade
@@ -169,15 +169,26 @@ int main(void){// main5
 // TExaSdisplay scope uses TimerG7, ADC0
 // To perform dynamic testing, there can be no breakpoints in your code
 // DACout will be a sine wave with period/frequency depending on which key is pressed
-int main6(void){// main6
+
+//Key0=311.1, Key1=392.0, Key2=466.2, Key3=523.3 Hz
+#define EF0 8035   // 311.1 Hz
+#define G0  6378   // 392 Hz
+#define BF0 5363   // 466.2 Hz
+#define C0  4778   // 523.3 Hz
+
+
+int main(void){// main6
   Clock_Init80MHz(0);
   LaunchPad_Init();
   Grader_Init();   // execute this line before your code
-  Lab5Grader(2);   // 1=logic analyzer, 2=Scope, 3=grade
+  Lab5Grader(3);   // 1=logic analyzer, 2=Scope, 3=grade
   DAC5_Init();     // DAC initialization
   Sound_Init(1,0); // SysTick initialization, initially off, priority 0
   Key_Init();      // Keyboard initialization
   Debug_Init();    // Lab 3 debugging
+
+  uint32_t preVal = 0;
+  uint32_t curVal;
   while(1){
 // if key goes from not pressed to pressed
 //   -call Sound_Start with the appropriate period
@@ -185,7 +196,24 @@ int main6(void){// main6
 // if key goes from pressed to not pressed
 //   -call Sound_Stop
 // I.e., if key has not changed DO NOT CALL start or stop
-    
+    curVal = Key_In();
+    if(curVal != preVal){
+        if(curVal == 0x1){
+            Sound_Start(EF0);
+        }
+        if(curVal == 0x2){
+            Sound_Start(G0);
+        }
+        if(curVal == 0x4){
+            Sound_Start(BF0);
+        }
+        if(curVal == 0x8){
+            Sound_Start(C0);
+        }
+    }
+    if(curVal == 0){
+        Sound_Stop();
+    }
     Clock_Delay(800000); // 10ms, to debounce switch
   }
 }
