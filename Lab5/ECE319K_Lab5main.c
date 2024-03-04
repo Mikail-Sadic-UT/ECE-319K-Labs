@@ -98,7 +98,12 @@ int main2b(void){ // main2b
 // TExaSdisplay scope uses TimerG7, ADC0
 // To perform dynamic testing, there can be no breakpoints in your code
 // DACout will be a monotonic ramp with period 32ms,
-int main(void){ // main3
+
+const uint8_t SinWave[32] = {16,19,22,24,27,28,30,31,31,31,30,
+                             28,27,24,22,19,16,13,10,8,5,4,
+                             2,1,1,1,2,4,5,8,10,13};    //I copy pasted this from what they gave us, looks right to me (i hope)
+
+int main3(void){ // main3
   Clock_Init80MHz(0);
   LaunchPad_Init();
   Grader_Init();   // execute this line before your code
@@ -145,7 +150,7 @@ int main4(void){ // main4
 // TExaSdisplay scope uses TimerG7, ADC0
 // To perform dynamic testing, there can be no breakpoints in your code
 // DACout will be a sine wave with period/frequency depending on which key is pressed
-int main5(void){// main5
+int main(void){// main5
   Clock_Init80MHz(0);
   LaunchPad_Init();
   Lab5Grader(2);   // 1=logic analyzer, 2=Scope, 3=grade
@@ -189,20 +194,22 @@ int main6(void){// main6
 // Observe Terminal window
 
 // Lab 5 low-level function implementations
+// Key0=311.1, Key1=392.0, Key2=466.2, Key3=523.3 Hz
 
-const uint8_t SinWave[32] = {16,19,22,24,27,28,30,31,31,31,30,
-                             28,27,24,22,19,16,13,10,8,5,4,
-                             2,1,1,1,2,4,5,8,10,13};    //I copy pasted this from what they gave us, looks right to me (i hope)
 
 // ARM SysTick period interrupts
 // Input: interrupts every 12.5ns*period
 //        priority is 0 (highest) to 3 (lowest)
+
+uint32_t x; //index
+
 void Sound_Init(uint32_t period, uint32_t priority){    // write this
+    x = 0;
     SysTick->CTRL = 0;
     SysTick->LOAD = (period - 1);
+    SCB->SHP[1] = (SCB->SHP[1]&(~0xC0000000)) | priority<<30; //Copied this from the textbook so I think it's probably right
     SysTick->VAL = 0;
-    SysTick->CTRL = 0x00000007;
-    //I think we need to set priority level here
+    SysTick->CTRL = 0x07;
 }
 void Sound_Stop(void){ // write this
     // either set LOAD to 0 or clear bit 1 in CTRL
@@ -218,15 +225,11 @@ void Sound_Start(uint32_t period){ // write this
 
 // Interrupt service routine
 // Executed every 12.5ns*(period)
-void SysTick_Handler(void){
-  // write this
-  // output one value to DAC
-    uint8_t output = 0;
-    for(int i = 0; i < 32; i++){ //??? (I have no clue what I'm doing here)
-        output = SinWave[i];
+// output one value to DAC
+void SysTick_Handler(void){ // write this
+    if(x > 32){
+        x = 0;
     }
+    DAC5_Out(SinWave[x]);
+    x++;
 }
-
-
-
-
