@@ -46,7 +46,7 @@ Test_udivby10:
 //         R1 is 16-bit remainder=dividend%10 (modulus)
 // not AAPCS compliant because it returns two values
 udivby10:
-      PUSH {R4, LR}
+      PUSH {R2-R4, LR}
       LDR  R4,=0x00010000 // bit mask
       MOVS R1, #10
       MOVS R3, #0  // quotient
@@ -67,7 +67,7 @@ next:
       MOVS R1,R0 // remainder
       MOVS R0,R3 // quotient
 
-      POP{R4, PC}
+      POP{R2-R4, PC}
 
   
 //-----------------------OutDec-----------------------
@@ -79,12 +79,34 @@ next:
 // Input: R0 (call by value) 16-bit unsigned number
 // Output: none
 // Invariables: This function must not permanently modify registers R4 to R11
+
 OutDec:
-    PUSH {LR}
+    PUSH {R4, LR}
+    CMP R0, #0
+    BEQ ZExit
+LOOP:
+	// if val == 0, exit
+	CMP R0, #0
+	BEQ EXIT
 
-    POP  {PC}
+	// R0: R0 / 10
+	// R1: REMAINDER
+	BL udivby10
+	MOVS R4, R0
+	MOVS R0, R1
+	ADDS R0, R0, #48
+
+	BL OutChar
+
+	MOVS R0, R4
+	B LOOP
+EXIT:
+    POP  {R4, PC}
+ZExit:
+	ADDS R0, R0, #48
+	BL OutChar
+	POP	{R4, PC}
+
 //* * * * * * * * End of OutDec * * * * * * * *
-
-
 
      .end
