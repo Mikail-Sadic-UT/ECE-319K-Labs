@@ -45,6 +45,7 @@ Test_udivby10:
 // Output: R0 is 16-bit quotient=dividend/10
 //         R1 is 16-bit remainder=dividend%10 (modulus)
 // not AAPCS compliant because it returns two values
+
 udivby10:
       PUSH {R2-R4, LR}
       LDR  R4,=0x00010000 // bit mask
@@ -81,9 +82,12 @@ next:
 // Invariables: This function must not permanently modify registers R4 to R11
 
 OutDec:
-    PUSH {R4, LR}
-    CMP R0, #0
+    PUSH {R4-R7, LR}
+    CMP R0, #0 //If only 0 input
     BEQ ZExit
+	SUB SP, SP, #32 //Allocate
+    MOVS R6, #0 //Set index
+
 LOOP:
 	// if val == 0, exit
 	CMP R0, #0
@@ -92,20 +96,30 @@ LOOP:
 	// R0: R0 / 10
 	// R1: REMAINDER
 	BL udivby10
-	MOVS R4, R0
-	MOVS R0, R1
-	ADDS R0, R0, #48
+	MOVS R4, R0 // R4 = R0
+	MOVS R0, R1 // R0 = R1 (Rem)
+	ADDS R0, R0, #48 // Rem + 48 (ascii)
+	PUSH{R0} //To reverse later
+	ADDS R6, R6, #1 //Incr counter
 
-	BL OutChar
+	//BL OutChar //print char
 
-	MOVS R0, R4
-	B LOOP
+	MOVS R0, R4 //Restore last input - first dig
+	B LOOP //loop
+
 EXIT:
-    POP  {R4, PC}
+	POP {R0} //Reverse
+	BL OutChar //Print
+	SUBS R6, R6, #1 //Decr counter
+	CMP R6, #0 //Counter 0?
+	BNE EXIT //loop
+
+	ADD SP, SP, #32 //Deallocate
+    POP  {R4-R7, PC} //Ret
 ZExit:
-	ADDS R0, R0, #48
-	BL OutChar
-	POP	{R4, PC}
+	ADDS R0, R0, #48 //ASCII conv
+	BL OutChar //print
+	POP	{R4-R7, PC} //Ret
 
 //* * * * * * * * End of OutDec * * * * * * * *
 
