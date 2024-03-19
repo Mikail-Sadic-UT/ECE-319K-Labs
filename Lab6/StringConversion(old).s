@@ -81,122 +81,41 @@ next:
 // Output: none
 // Invariables: This function must not permanently modify registers R4 to R11
 
-//Binding
-.equ dig1, 4
-.equ dig2, 8
-.equ dig3, 12
-.equ dig4, 16
-.equ dig5, 20
-
 OutDec:
     PUSH {R4-R7, LR}
     CMP R0, #0 //If only 0 input
     BEQ ZExit
+	SUB SP, SP, #32 //Allocate
+    MOVS R6, #0 //Set index
 
-	//Allocation
-	SUB SP, SP, #24
-	MOVS R4, #0
-	STR R4, [SP, #dig1]
-	STR R4, [SP, #dig2]
-	STR R4, [SP, #dig3]
-	STR R4, [SP, #dig4]
-	STR R4, [SP, #dig5]
-	MOVS R7, #0 //Initialize counter
+LOOP:
+	// if val == 0, exit
+	CMP R0, #0
+	BEQ EXIT
 
-	//Access
-Loop:
-	BL udivby10 //R0 is quotient, R1 is remainder
-	ADDS R7, R7, #1 //Incr counter
+	// R0: R0 / 10
+	// R1: REMAINDER
+	BL udivby10
+	MOVS R4, R0 // R4 = R0
+	MOVS R0, R1 // R0 = R1 (Rem)
+	ADDS R0, R0, #48 // Rem + 48 (ascii)
+	PUSH{R0} //To reverse later
+	ADDS R6, R6, #1 //Incr counter
 
-	//Check current digit
-	CMP R7, #1
-	BEQ Dig1
-	CMP R7, #2
-	BEQ Dig2
-	CMP R7, #3
-	BEQ Dig3
-	CMP R7, #4
-	BEQ Dig4
-	CMP R7, #5
-	BEQ Dig5
+	//BL OutChar //print char
 
-	B Skip
+	MOVS R0, R4 //Restore last input - first dig
+	B LOOP //loop
 
-	//Store the remainder in the digit it needs to be in
-Dig1:
-	STR R1, [SP, #dig1]
-	B Skip
-Dig2:
-	STR R1, [SP, #dig2]
-	B Skip
-Dig3:
-	STR R1, [SP, #dig3]
-	B Skip
-Dig4:
-	STR R1, [SP, #dig4]
-	B Skip
-Dig5:
-	STR R1, [SP, #dig5]
-
-Skip:
-	CMP R0, #0 //Check if there is no more to divide
-	BEQ Output //goto output
-
-	B Loop //loop back
-
-Output: //Output function
-	CMP R7, #0
-	BEQ EXIT //Exit if counter has reached 0
-
-	//Check which digit to print
-	CMP R7, #1
-	BEQ pdig1
-	CMP R7, #2
-	BEQ pdig2
-	CMP R7, #3
-	BEQ pdig3
-	CMP R7, #4
-	BEQ pdig4
-	CMP R7, #5
-	BEQ pdig5
-
-	B Skip2
-
-	//Print said digit
-pdig1:
-	LDR R0, [SP, #dig1]
-	ADDS R0, R0, #48 //Ascii conversion
-	BL OutChar
-	B Skip2
-pdig2:
-	LDR R0, [SP, #dig2]
-	ADDS R0, R0, #48
-	BL OutChar
-	B Skip2
-pdig3:
-	LDR R0, [SP, #dig3]
-	ADDS R0, R0, #48
-	BL OutChar
-	B Skip2
-pdig4:
-	LDR R0, [SP, #dig4]
-	ADDS R0, R0, #48
-	BL OutChar
-	B Skip2
-pdig5:
-	LDR R0, [SP, #dig5]
-	ADDS R0, R0, #48
-	BL OutChar
-
-Skip2: //Subtract counter
-	SUBS R7, R7, #1
-	B Output //loop
-
-//Deallocation
 EXIT:
-	ADD SP, #24 //Deallocate
-	POP {R4-R7, PC} //Ret
+	POP {R0} //Reverse
+	BL OutChar //Print
+	SUBS R6, R6, #1 //Decr counter
+	CMP R6, #0 //Counter 0?
+	BNE EXIT //loop
 
+	ADD SP, SP, #32 //Deallocate
+    POP  {R4-R7, PC} //Ret
 ZExit:
 	ADDS R0, R0, #48 //ASCII conv
 	BL OutChar //print
