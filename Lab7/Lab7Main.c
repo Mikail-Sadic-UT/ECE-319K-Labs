@@ -28,45 +28,55 @@ void PLL_Init(void){ // set phase lock loop (PLL)
 // n is integer 0 to 2000
 // output to ST7735 0.000cm to 2.000cm
 
-void OutFix1(uint32_t n){ //Using Modulus and Division (~810000)
-    uint32_t firstdig = n/1000; //Gets 1st digit
-    n = n%1000; //rest of digits
-    if(n<100){
-        printf("d=%i.%i%i cm",firstdig, 0, n); //adds 0 after .
+void OutFix(uint32_t n){ //Using Modulus and Division (~785000)
+
+    //uint32_t firstdig = n/1000; //Gets 1st digit
+
+    uint32_t last = n%1000; //rest of digits
+
+    if(n >= 1000){
+        printf("d=1.%3.3i cm", last);
+    }else if(n < 1000){                 //Fastest way - ~784500
+        printf("d=0.%3.3i cm", last);
     }
-    if(n>= 100){
-        printf("d=%i.%i cm",firstdig, n); //Prints that john to the screen
-    }
+
+    //printf("d=%i.%3.3i cm",firstdig, last); //Formatting with variable first digit
+
+    /*if(n<10){
+        printf("d=%i.00%i cm",firstdig, last);
+    }else if(n<100){
+        printf("d=%i.0%i cm",firstdig, last);   //Formatting using if statements
+    }else if(n>= 100){
+        printf("d=%i.%i cm",firstdig, last);
+    }*/
+
 }
 
-void OutFix(uint32_t n){ //Using shifts and anding (~787500)
+void OutFix1(uint32_t n){ //Using shifts and anding (~784500)
     uint32_t last = (n << 22) >> 22;
-    uint32_t first = 0;
     if(n > 1024){
-        first = (n & 1024) - 1023;
         if(last < 100){
-            printf("d=%i.%i%i cm", first, 0, last);
-        }else{
-            printf("d=%i.%i cm", first, (last+24));
+            printf("d=1.%3.3i cm", last);
+        }else if(last >= 100){
+            printf("d=1.%3.3i cm", (last+24));
         }
     }else if(n > 999 && n < 1024){
         last = ((last << 27) >> 27) + 1;
-        printf("d=1.0%i cm", last);
-    }else if(last < 100){
-        printf("d=%i.%i%i cm", first, 0, last);
-    }else{
-        printf("d=%i.%i cm", first, last);
+        printf("d=1.%3.3i cm", last);
+    }else if(n <= 999){
+        printf("d=0.%3.3i cm", last);
     }
-
 }
-
 // do not use this function
 // it is added just to show you how SLOW floating point in on a Cortex M0+
+// NOTE: This is done in a bogus way. The cycle time only takes into account the print statement,
+// not the actual floating point calculation...
 void FloatOutFix(float x){
-// resolution cm
-// c is integer 0 to 2.000
-// output to ST7735 0.000cm to 2.000cm
-  printf("d=%f cm   ",x);  // floating point output
+
+  printf("d=%f cm   ",x);  // floating point output (~1250000)
+
+  //printf("d=%4.3f cm",x);  // optimized floating point output (~787000, lol)
+
 }
 
 uint32_t Data;        // 12-bit ADC
@@ -155,7 +165,7 @@ int main3(void){ // main3
 // Position should go from 0 to 2000
 // LCD should show 0.000cm to 2.000 cm
 // OutFixtime is the time to execute OutFix in bus cycles
-int main4(void){ // main4
+int main(void){ // main4
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -204,7 +214,7 @@ uint8_t TExaS_LaunchPadLogicPB27PB26(void){
 // use scope or logic analyzer to verify real time samples
 // option 1) remove call to TExaS_Init and use a real scope on PB27
 // option 2) use TExaS logic analyzer
-int main(void){ // main5
+int main5(void){ // main5
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
