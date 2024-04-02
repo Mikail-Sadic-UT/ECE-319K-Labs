@@ -27,15 +27,37 @@ void PLL_Init(void){ // set phase lock loop (PLL)
 // resolution is 0.001cm
 // n is integer 0 to 2000
 // output to ST7735 0.000cm to 2.000cm
-void OutFix(uint32_t n){
+
+void OutFix1(uint32_t n){ //Using Modulus and Division (~810000)
     uint32_t firstdig = n/1000; //Gets 1st digit
     n = n%1000; //rest of digits
     if(n<100){
-        printf("d=%i.%i%i cm      ",firstdig, 0, n); //adds 0 after .
+        printf("d=%i.%i%i cm",firstdig, 0, n); //adds 0 after .
     }
     if(n>= 100){
-        printf("d=%i.%i cm      ",firstdig, n); //Prints that john to the screen
+        printf("d=%i.%i cm",firstdig, n); //Prints that john to the screen
     }
+}
+
+void OutFix(uint32_t n){ //Using shifts and anding (~787500)
+    uint32_t last = (n << 22) >> 22;
+    uint32_t first = 0;
+    if(n > 1024){
+        first = (n & 1024) - 1023;
+        if(last < 100){
+            printf("d=%i.%i%i cm", first, 0, last);
+        }else{
+            printf("d=%i.%i cm", first, (last+24));
+        }
+    }else if(n > 999 && n < 1024){
+        last = ((last << 27) >> 27) + 1;
+        printf("d=1.0%i cm", last);
+    }else if(last < 100){
+        printf("d=%i.%i%i cm", first, 0, last);
+    }else{
+        printf("d=%i.%i cm", first, last);
+    }
+
 }
 
 // do not use this function
