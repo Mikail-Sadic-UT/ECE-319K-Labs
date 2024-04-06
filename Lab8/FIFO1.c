@@ -35,7 +35,7 @@ uint32_t Fifo1_Put(char data) {
     if (FULL) return 0;
     if (EMPTY) EMPTY = 0;
     FIFO[Put] = data;
-    Put = (Put + 1) % SIZE;
+    Put = (Put + 1) % SIZE; //Increments Put circularly
     if (Put == Get) FULL = 1;
     return 1;
 }
@@ -50,7 +50,7 @@ char Fifo1_Get(void){
     if (EMPTY) return 0;
     if (FULL) FULL = 0;
     char data = FIFO[Get];
-    Get = (Get + 1) % SIZE;
+    Get = (Get + 1) % SIZE; //Increments Get circularly
     if (Get == Put) EMPTY = 1;
     return data;
 }

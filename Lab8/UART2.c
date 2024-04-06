@@ -34,9 +34,9 @@ void UART2_Init(void){
     UART2->IBRD = 1250;//   divider = 1250 + 0/64 = 1250
     UART2->FBRD = 0; // baud =2,500,000/1250 = 2000
     UART2->LCRH = 0x00000030;
-    UART2->CPU_INT.IMASK = 0x0C01;
+    UART2->CPU_INT.IMASK = 1;
     // bit 11 TXINT
-    // bit 10 RXINT             Interrupt only on receiver timeout RTOUT (no TXINT, no RXINT) <- Haven't done this yet?
+    // bit 10 RXINT             Interrupt only on receiver timeout RTOUT (no TXINT, no RXINT)
     // bit 0  Receive timeout
     UART2->IFLS = 0x0422;
     // bits 11-8 RXTOSEL receiver timeout select 4 (0xF highest)
@@ -44,7 +44,7 @@ void UART2_Init(void){
     // bits 2-0  TXIFLSEL 2 is less than or equal to half
     NVIC->ICPR[0] = 1<<14; // UART2 is IRQ 14
     NVIC->ISER[0] = 1<<14;
-    NVIC->IP[3] = (NVIC->IP[3]&(~0xFF000000))|(2<<22);    // priority (bits 31,30)
+    NVIC->IP[3] = (NVIC->IP[3]&(~0xFF000000))|(2<<22);    // priority (bits 23,22)
     UART2->CTL0 |= 0x01; // enable UART2
 
 }
@@ -54,15 +54,23 @@ void UART2_Init(void){
 // Output: Return 0 if the FIFO1 is empty
 //         Return nonzero data from the FIFO1 if available
 char UART2_InChar(void){
-  return 42; // replace this line
+    return Fifo1_Get();
 }
 
-
-void UART2_IRQHandler(void){ uint32_t status; char letter;
+//Lowkey idrk why this works, it just does :P
+void UART2_IRQHandler(void){
+    uint32_t status;
+    char letter;
   // acknowledge RTOUT
     GPIOB->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
     GPIOB->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
     // read all data and put in FIFO1
-    GPIOB->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
-
+    status = UART2->CPU_INT.IIDX; // reading clears bit in RIS
+      if(status == 0x01){       // 0x01 receive timeout RTOUT
+          while(((UART2->STAT&0x04) == 0)){
+              letter = UART2->RXDATA;
+              Fifo1_Put(letter);
+          }
+          GPIOB->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
+      }
 }

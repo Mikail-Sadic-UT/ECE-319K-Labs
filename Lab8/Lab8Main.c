@@ -16,6 +16,9 @@
 #include "../inc/FIFO1.h"
 #include "UART1.h"
 #include "UART2.h"
+
+void Converter(uint32_t n);
+
 // ****note to students****
 // the data sheet says the ADC does not work when clock is 80 MHz
 // however, the ADC seems to work on my boards at 80 MHz
@@ -123,7 +126,7 @@ int main1(void){ // use main1 to test your FIFO1
 
 // use main2 to test UART1 blind transmission
 // no interrupts, just PA8 U1Tx output
-int main(void){ // main2
+int main2(void){ // main2
   __disable_irq();
   PLL_Init();   // set bus speed
   LaunchPad_Init();
@@ -184,22 +187,39 @@ int main4(void){ // main4, loop back test
     UART_OutString("\n\r");
   }
 }
-
+uint8_t D1;
+uint8_t D2;
+uint8_t D3;
+uint8_t D4;
+uint8_t FLAG;
 // sampling frequency is 30 Hz
 void TIMG12_IRQHandler(void){uint32_t pos,msg;
 // complete this
   if((TIMG12->CPU_INT.IIDX) == 1){ // this will acknowledge
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
-    // increment TransmitCount
-    // sample
+    TransmitCount++;// increment TransmitCount
+    Data = ADCin();// sample
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
-    // convert to fixed point distance
+    Data = (2000 * Data) >> 12;  //convert to fixed point distance
+    Converter(Data);
     // output 4-frame message
- 
- 
+    UART1_OutChar(D1);
+    UART1_OutChar(D2);      //Sends that john over
+    UART1_OutChar(D3);
+    UART1_OutChar(D4);
+    FLAG = 1;
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
   }
 }
+
+void Converter(uint32_t n){ //Splits data into 4 digits to send
+    D1 = n/1000;
+    uint32_t rest = n%1000;
+    D2 = rest/100;
+    D3 = (rest%100)/10;
+    D4 = (rest%10);
+}
+
 uint8_t TExaS_LaunchPadLogicPB27PB26(void){
   return (0x80|((GPIOB->DOUT31_0>>26)&0x03));
 }
@@ -209,8 +229,9 @@ uint8_t TExaS_LaunchPadLogicPB27PB26(void){
 // Data should go from 0 to 4095 in transmitter
 // Position should go from 0 to 2000 in receiver
 // LCD should show 0.000cm to 2.000 cm
-int main5(void){ // main5
-  __disable_irq();
+int main(void){ // main5
+    char data1,data2,data3,data4;
+    __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
   ReceiveCount=0; TransmitCount=0;
@@ -223,25 +244,31 @@ int main5(void){ // main5
   ADCinit(); //PB18 = ADC1 channel 5, slidepot
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
   ST7735_PlotClear(0,2000);
-    // initialize interrupts on TimerG12 at 30 Hz
-  
+  TimerG12_IntArm(2666667, 1);// initialize interrupts on TimerG12 at 30 Hz
+  FLAG = 0; //Set flag (I think?? The only way I got it synced is that if I read and sent at the same time (30Hz))
   __enable_irq();
 
   while(1){
 	  // complete this
-	  
-    // move cursor to top left
-    // wait for first frame
-    // increment ReceiveCount
+	  if(FLAG){
+	      FLAG = 0; //Yk me :P
+      ST7735_SetCursor(0,0);// move cursor to top left
+      data1 = UART2_InChar();// wait for first frame <----- I don't know what this means, I kinda just read it willy nilly
+    ReceiveCount++; // increment ReceiveCount
 	// receive next three frames
+	data2 = UART2_InChar();
+	data3 = UART2_InChar();     //Gets each character from UART2
+	data4 = UART2_InChar();
     GPIOB->DOUTTGL31_0 = RED; // toggle PB26 (minimally intrusive debugging)
       // output message to ST7735
-    
+    printf("d=%1.1i.%1.1i%1.1i%1.1i", data4, data1, data2, data3); //Outputs that john
+    Position = data4*1000 + data1*100 + data2*10 + data3; //Calcs position from that data
     // calculate Position from message
     if((ReceiveCount%15)==0){
       ST7735_PlotPoint(Position);
       ST7735_PlotNextErase(); // data plotted at about 2 Hz
     }
+	  }
   }
 }
 
