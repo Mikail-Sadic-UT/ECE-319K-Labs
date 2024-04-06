@@ -57,7 +57,7 @@ uint32_t FifoError;
 char me,you;
 char data;
 
-int main(void){ // use main1 to test your FIFO1
+int main1(void){ // use main1 to test your FIFO1
 
   __disable_irq();
   PLL_Init(); // set bus speed
@@ -123,7 +123,7 @@ int main(void){ // use main1 to test your FIFO1
 
 // use main2 to test UART1 blind transmission
 // no interrupts, just PA8 U1Tx output
-int main2(void){ // main2
+int main(void){ // main2
   __disable_irq();
   PLL_Init();   // set bus speed
   LaunchPad_Init();
