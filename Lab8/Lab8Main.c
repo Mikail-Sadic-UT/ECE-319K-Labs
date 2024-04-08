@@ -191,7 +191,7 @@ uint8_t D1;
 uint8_t D2;
 uint8_t D3;
 uint8_t D4;
-uint8_t FLAG;
+//uint8_t FLAG;
 // sampling frequency is 30 Hz
 void TIMG12_IRQHandler(void){uint32_t pos,msg;
 // complete this
@@ -203,11 +203,10 @@ void TIMG12_IRQHandler(void){uint32_t pos,msg;
     Data = (2000 * Data) >> 12;  //convert to fixed point distance
     Converter(Data);
     // output 4-frame message
-    UART1_OutChar(D1);
+    UART1_OutChar((D1 + (1<<7)));
     UART1_OutChar(D2);      //Sends that john over
     UART1_OutChar(D3);
     UART1_OutChar(D4);
-    FLAG = 1;
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
   }
 }
@@ -245,15 +244,12 @@ int main(void){ // main5
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
   ST7735_PlotClear(0,2000);
   TimerG12_IntArm(2666667, 1);// initialize interrupts on TimerG12 at 30 Hz
-  FLAG = 0; //Set flag (I think?? The only way I got it synced is that if I read and sent at the same time (30Hz))
   __enable_irq();
 
   while(1){
-	  // complete this
-	  if(FLAG){
-	      FLAG = 0; //Yk me :P
       ST7735_SetCursor(0,0);// move cursor to top left
-      data1 = UART2_InChar();// wait for first frame <----- I don't know what this means, I kinda just read it willy nilly
+      data1 = UART2_InChar(); // wait for first frame
+      if((data1 & 0x80) == 0x80){ // wait for first frame
     ReceiveCount++; // increment ReceiveCount
 	// receive next three frames
 	data2 = UART2_InChar();
@@ -261,8 +257,18 @@ int main(void){ // main5
 	data4 = UART2_InChar();
     GPIOB->DOUTTGL31_0 = RED; // toggle PB26 (minimally intrusive debugging)
       // output message to ST7735
-    printf("d=%1.1i.%1.1i%1.1i%1.1i", data4, data1, data2, data3); //Outputs that john
-    Position = data4*1000 + data1*100 + data2*10 + data3; //Calcs position from that data
+    data1 = data1 - 0x80;
+    if(data2 > 10){ //Incase of char being sent instead of int
+        data1 = data1 - 0x30;
+        data2 = data2 - 0x30;
+        data3 = data3 - 0x30;
+        data4 = data4 - 0x30;
+        printf("d=%1.1d.%1.1d%1.1d%1.1d", data1, data2, data3, data4); //Outputs that john
+        Position = data1*1000 + data2*100 + data3*10 + data4; //Calcs position from that data
+    } else {    //if int is sent
+        printf("d=%1.1d.%1.1d%1.1d%1.1d", data1, data2, data3, data4); //Outputs that john
+        Position = data1*1000 + data2*100 + data3*10 + data4; //Calcs position from that data
+    }
     // calculate Position from message
     if((ReceiveCount%15)==0){
       ST7735_PlotPoint(Position);

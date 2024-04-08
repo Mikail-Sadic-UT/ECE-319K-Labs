@@ -30,7 +30,7 @@ void UART2_Init(void){
     UART2->CLKDIV = 0x00; // no divide
     UART2->CTL0 &= ~0x01; // disable UART2
     UART2->CTL0 = 0x00020018;
-   // assumes an 80 MHz bus clock           VVV DOUBLE CHECK VVV
+   // assumes an 80 MHz bus clock
     UART2->IBRD = 1250;//   divider = 1250 + 0/64 = 1250
     UART2->FBRD = 0; // baud =2,500,000/1250 = 2000
     UART2->LCRH = 0x00000030;
