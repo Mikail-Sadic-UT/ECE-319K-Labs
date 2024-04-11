@@ -27,10 +27,11 @@ extern uint32_t *ADCX;
 extern uint32_t *ADCY;
 extern uint8_t HPFLAG;
 extern uint8_t DASH;
+extern uint8_t PLAYERUPDATE;
 
 void playerInit(Player_t *thePlayer){
-    thePlayer->x = 0;
-    thePlayer->y = 0;
+    thePlayer->x = 90;
+    thePlayer->y = 64;
 }
 
 void setSpeed(Player_t *thePlayer)
@@ -46,7 +47,7 @@ void setSpeed(Player_t *thePlayer)
     Y = Y - 4; // Y speed is -7 to +7
     if(Y < 0) Y++;
 
-    X = X*-1;
+    Y = Y*-1;
     thePlayer->spdX = X;
     thePlayer->spdY = Y;
 }
@@ -56,19 +57,24 @@ void updateCoords(Player_t *thePlayer){
     int16_t xOld, yOld, x, y;
     spdX = thePlayer->spdX;
     spdY = thePlayer->spdY;
-    xOld = thePlayer->x;
-    yOld = thePlayer->y;
+    if((spdX != 0) || (spdY != 0)){
+        xOld = thePlayer->x;
+        yOld = thePlayer->y;
 
-    x = (xOld + spdX);
-    if(x > 180) x = 180;
-    if(x < 0) x = 0;
+        x = (xOld + spdX);
+        if(x > 160) x = 160;
+        if(x < 10) x = 10;
 
-    y = (yOld + spdY);
-    if(y > 128) y = 128;
-    if(y < 0) y = 0;
+        y = (yOld + spdY);
+        if(y > 118) y = 118;
+        if(y < 0) y = 0;
 
-    thePlayer->x = x;
-    thePlayer->y = y;
+        thePlayer->x = x;
+        thePlayer->y = y;
+        PLAYERUPDATE = 1;
+    } else {
+        PLAYERUPDATE = 0;
+    }
 }
 
 uint8_t SwitchHandler(uint32_t A, uint32_t B, Player_t *thePlayer){

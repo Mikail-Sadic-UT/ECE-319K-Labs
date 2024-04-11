@@ -53,6 +53,7 @@ uint32_t switchDataB;
 uint8_t UPDATE;
 uint8_t HPFLAG;
 uint8_t DASH;
+uint8_t PLAYERUPDATE;
 
 Player_t thePlayer;
 
@@ -89,7 +90,7 @@ void TIMG12_IRQHandler(void){ // game engine goes here
 uint8_t TExaS_LaunchPadLogicPB27PB26(void) {return (0x80 | ((GPIOB->DOUT31_0 >> 26) & 0x03));}
 #define ADCVREF_VDDA 0x000
 
-int main(void) { // final main
+int main(void) { // main
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -105,7 +106,46 @@ int main(void) { // final main
   playerInit(&thePlayer);
   __enable_irq();
   UPDATE = 0;
-  int16_t spdx, spdy, x, y;
+  int16_t spdx, spdy, x, y, xOld, yOld;
+  while (1)
+  {
+    if (UPDATE)
+    {             // wait for semaphore
+      UPDATE = 0; // clear semaphore
+                  // update ST7735R
+      spdx = thePlayer.spdX;
+      spdy = thePlayer.spdY;
+      x = thePlayer.x;
+      y = thePlayer.y;
+      if(PLAYERUPDATE){
+          ST7735_DrawBitmap(yOld, xOld, playerOld, 11, 11);
+          ST7735_DrawBitmap(y, x, player, 11, 11);
+      }
+      xOld = x;
+      yOld = y;
+    }
+
+    // check for end game or level switch
+  }
+}
+
+int mainDebug(void) { // Debug main
+  __disable_irq();
+  PLL_Init(); // set bus speed
+  LaunchPad_Init();
+  ST7735_InitPrintf();
+  ST7735_FillScreen(ST7735_BLACK);
+  ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);
+  Switch_Init();                                   // initialize switches
+  LED_Init();                                      // initialize LED
+  Sound_Init();                                    // initialize sound
+  TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
+  TimerG12_IntArm(80000000 / 30, 2);               // initialize interrupts on TimerG12 at 30 Hz
+  // initialize all data structures
+  playerInit(&thePlayer);
+  __enable_irq();
+  UPDATE = 0;
+  int16_t spdx, spdy, x, y, xOld, yOld;
   while (1)
   {
     if (UPDATE)
@@ -133,7 +173,6 @@ int main(void) { // final main
     // check for end game or level switch
   }
 }
-
 
 
 typedef enum
