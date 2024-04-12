@@ -1,64 +1,55 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
-struct Player
+struct Entity
 {
   uint8_t hp;
   uint8_t x;
   uint8_t y;
-  const uint16_t *image; // img of sprite
-  const uint8_t h, w;    // height and width of sprite
+  uint32_t *image; // img of sprite
+  uint8_t h, w;    // height and width of sprite
   int8_t spdX;
   int8_t spdY;
 };
-typedef struct Player Player_t;
+typedef struct Entity Entity_t;
 
-struct Enemy
-{
-  uint16_t hp;
-  uint8_t x;
-  uint8_t y;
-  const uint16_t *image; // img of sprite
-  const uint8_t h, w;    // height and width of sprite
-  int8_t spdX;
-  int8_t spdY;
-};
-typedef struct Enemy Enemy_t;
 
-struct PlayerBullet
-{
-  uint8_t x;
-  uint8_t y;
-  const uint16_t *image; // img of sprite
-  const uint8_t h, w;    // height and width of sprite
-  int8_t spdX;
-  int8_t spdY;
-};
-typedef struct PlayerBullet PlayerBullet_t;
+void playerInit(Entity_t *thePlayer, uint16_t hp);  //Initializes player
 
-struct EnemyBullet
-{
-  uint8_t type;
-  uint8_t x;
-  uint8_t y;
-  const uint16_t *image; // img of sprite
-  const uint8_t h, w;    // height and width of sprite
-  int8_t spdX;
-  int8_t spdY;
-};
+void enemyInit(Entity_t *theEnemy, uint16_t hp);    //Initializes enemy
 
-typedef struct EnemyBullet EnemyBullet_t;
+void setSpeed(Entity_t *thePlayer);     //sets Player speed
 
-void playerInit(Player_t *thePlayer);
+void updateCoords(Entity_t *thePlayer); //Updates coords of entity
 
-void setSpeed(Player_t *thePlayer);
+void updatePlayerCoords(Entity_t *Entity);  //Updates player coords
 
-void updateCoords(Player_t *thePlayer);
+void updateEnemyCoords(Entity_t *Entity);   //Updates enemy coords (WIP)
 
-void setHPLED(Player_t *thePlayer);
+void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet);
 
-uint8_t collisionCheck(Player_t *thePlayer);
+void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer);    //WIP
 
-uint8_t SwitchHandler(uint32_t A, uint32_t B, Player_t *thePlayer);
+void updateEnemyBulletCoords(Entity_t *Entity);     //WIP
+
+void setHPLED(Entity_t *thePlayer);     //Sets HP LEDS based off player health
+
+void collisionCheck(Entity_t *Player, Entity_t *Enemy); //Checks collisions
+
+void crashCheck(Entity_t *Player, Entity_t *Enemy); //ends game if crash into enemy
+
+void bulletCollisionCheck(Entity_t *Player, Entity_t *Bullet);  //WIP
+
+uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer); //Handles switch presses for player
+
+void drawPlayer(Entity_t *thePlayer);   //Draws Player
+
+void drawEnemy(Entity_t *theEnemy);     //Draws Enemy
+
+void drawPlayerBullet(Entity_t *Bullet);    //Draws player bullet
+
+void clearPlayerBullet();   //clears last instance of player bullet
+
+void updateEnemyHP(Entity_t *Enemy);    //updates enemy hp on hit
 
 #endif

@@ -25,9 +25,14 @@ const unsigned short blue_Bullet[] = {
  0x0000, 0xFE54, 0xFE54, 0xFE54, 0x0000,
 };
 
-const unsigned short player_Bullet[] = { //this is supposed to be white lol
+const unsigned short player_Bullet[] = {
  0xFFFF, 0xFFFF,
  0xFFFF, 0xFFFF
+};
+
+const unsigned short player_BulletOld[] = {
+ 0x0000, 0x0000,
+ 0x0000, 0x0000
 };
 
 const unsigned short enemy[] = {

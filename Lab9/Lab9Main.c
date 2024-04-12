@@ -18,8 +18,9 @@
 #include "LED.h"
 #include "Switch.h"
 #include "Sound.h"
-#include "images/images.h"
+//#include "images/images.h"
 #include "Engine.h"
+#include "Lab9Main.h"
 
 #define R3D (1 << 17)
 #define YEL (1 << 28) // Info
@@ -29,9 +30,24 @@
 #define DWN (1<<26)
 #define LFT (1<<25)
 #define RT (1<<27)
-#define SP (1)//change later lol
+#define SP (1<<16)
 
-void PLL_Init(void){Clock_Init80MHz(0);} // run this line for 80MHz
+#define playerHPdemo 13
+#define playerHPeasy 7
+#define playerHPnormal 5
+#define playerHPhard 3
+#define playerHPnohit 1
+
+#define enemyHPdemo 15
+#define enemyHPeasy 30
+#define enemyHPnormal 45
+#define enemyHPhard 60
+#define enemyHPnohit 75
+
+#define playerBulletBuffer 15
+#define enemyBulletBuffer 255
+
+void PLL_Init(void){Clock_Init80MHz(0);}
 
 uint32_t M = 1;
 uint32_t Random32(void){
@@ -52,82 +68,126 @@ uint32_t switchDataB;
 
 uint8_t UPDATE;
 uint8_t HPFLAG;
-uint8_t DASH;
+uint8_t GAMEOVER;
+uint8_t WARP;
 uint8_t PLAYERUPDATE;
+uint8_t ENEMYUPDATE;
+uint8_t CRASH;
+uint8_t bulletHit;
+uint8_t bulletLive;
+uint8_t lastClear;
+uint8_t WIN;
 
-Player_t thePlayer;
+Entity_t thePlayer;
 
-Enemy_t thEnemy;
+Entity_t theEnemy;
 
-uint8_t dashCounter = 0;
+Entity_t playerBullet;
+
+Entity_t enemyBullets;
+
+uint8_t WARPCounter = 0;
 uint8_t coordCounter = 0;
 
 uint8_t switchData;
-// games  engine runs at 30Hz
-void TIMG12_IRQHandler(void){ // game engine goes here
-  if ((TIMG12->CPU_INT.IIDX) == 1){ // this will acknowledge
-      ADC_InDual(ADC1, &ADCX, &ADCY);
-      setSpeed(&thePlayer);
-      switchDataA = Switch_InA(); // 2) read input switches
-      switchDataB = Switch_InB();
-      switchData = SwitchHandler(switchDataA, switchDataB, &thePlayer);
-      if(coordCounter == 2){
-          updateCoords(&thePlayer);
-          coordCounter = 0;
+
+void TIMG12_IRQHandler(void){           //Game Engine
+  if ((TIMG12->CPU_INT.IIDX) == 1){
+      ADC_InDual(ADC1, &ADCX, &ADCY);   //Probes ADC
+      setSpeed(&thePlayer);             //Sets Player speed based on ADC
+      switchDataA = Switch_InA();       //Gets PA switch vals
+      switchDataB = Switch_InB();       //Gets PB switch Vals
+      switchData = SwitchHandler(switchDataA, switchDataB, &thePlayer); //Handles switch press
+      if(switchData == 1) setPlayerBulletTrajectory(&thePlayer, &playerBullet); //Shoot bullet to bad guy
+      if(coordCounter == 2) updateCoords(&thePlayer);   //Updates player coord at 15hz
+      updatePlayerBulletCoords(&playerBullet, &thePlayer);  //updates player bullet
+      if(bulletHit) updateEnemyHP(&theEnemy);   //Updates enemy HP on hit
+      WARPCounter++;                    //Warp timer++
+      coordCounter++;                   //Coord timer++
+      if(WARPCounter > 254){            //WARP timer ~7sec
+          WARPCounter = 0;
+          WARP = 1;
       }
-      dashCounter++;
-      coordCounter++;
-      if(dashCounter > 254){ //Dash timer ~7sec
-          dashCounter = 0;
-          DASH = 1;
-      }
-      // 3) move sprites0
-      // 4) start sounds
-      UPDATE = 1; // 5) set semaphore
+      collisionCheck(&thePlayer, &theEnemy);    //Checks collision
+      if(HPFLAG) setHPLED(&thePlayer);  //Sets HPLEDS based on player HP
+
+      //start sounds
+      UPDATE = 1;                       //Update flag
   }
 }
+
+/*
+
+create linked list of bullets
+add to linked list when creating a bullet
+remove from linked list when destroying a bullet
+
+every frame, loop through the list and check:
+1. Does the bullet need to be destroyed?
+    a. Yes, out of range (destroy)
+    b. Yes, hit player (take care of what needs to be taken care of, destroy)
+2. Apply speed vectors to bullet coord
+3. Draw bullet
+4. Go to next item in linked list (until null)
+
+*/
 
 uint8_t TExaS_LaunchPadLogicPB27PB26(void) {return (0x80 | ((GPIOB->DOUT31_0 >> 26) & 0x03));}
 #define ADCVREF_VDDA 0x000
 
 int main(void) { // main
   __disable_irq();
-  PLL_Init(); // set bus speed
+  PLL_Init();
   LaunchPad_Init();
   ST7735_InitPrintf();
   ST7735_FillScreen(ST7735_BLACK);
-  ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);
-  Switch_Init();                                   // initialize switches
-  LED_Init();                                      // initialize LED
-  Sound_Init();                                    // initialize sound
-  TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
-  TimerG12_IntArm(80000000 / 30, 2);               // initialize interrupts on TimerG12 at 30 Hz
-  // initialize all data structures
-  playerInit(&thePlayer);
+  ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);           // init Dual ADC
+  Switch_Init();                                    // initialize switches
+  LED_Init();                                       // initialize LED
+  Sound_Init();                                     // initialize sound
+  TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26);  // PB27 and PB26
+  TimerG12_IntArm(80000000 / 30, 2);                // initialize interrupts on TimerG12 at 30 Hz
+  gameInit();                                       // data structure inits
   __enable_irq();
-  UPDATE = 0;
-  int16_t spdx, spdy, x, y, xOld, yOld;
-  while (1)
-  {
-    if (UPDATE)
-    {             // wait for semaphore
-      UPDATE = 0; // clear semaphore
-                  // update ST7735R
-      spdx = thePlayer.spdX;
-      spdy = thePlayer.spdY;
-      x = thePlayer.x;
-      y = thePlayer.y;
-      if(PLAYERUPDATE){
-          ST7735_DrawBitmap(yOld, xOld, playerOld, 11, 11);
-          ST7735_DrawBitmap(y, x, player, 11, 11);
-      }
-      xOld = x;
-      yOld = y;
-    }
 
-    // check for end game or level switch
+  while (1) {
+    if (UPDATE) {
+
+      if(PLAYERUPDATE) drawPlayer(&thePlayer);
+      if(ENEMYUPDATE || bulletHit) drawEnemy(&theEnemy);
+      if(bulletLive > 0) drawPlayerBullet(&playerBullet);
+      if(lastClear) clearPlayerBullet();
+
+      UPDATE = 0;
+    }
+    while(GAMEOVER){
+        if(CRASH){
+            printf("you crashed lol"); //this is if you crashed into enemy
+        }
+        while(1){}
+    }
+    while(WIN){
+        printf("u win!");
+        while(1){}
+    }
   }
 }
+
+void gameInit(){ // Flag inits
+    playerInit(&thePlayer, playerHPdemo);             // inits player
+    enemyInit(&theEnemy, enemyHPdemo);               // inits enemy
+    UPDATE = 0;
+    HPFLAG = 1;
+    ENEMYUPDATE = 1;
+    PLAYERUPDATE = 1;
+    GAMEOVER = 0;
+    CRASH = 0;
+    bulletHit = 0;
+    bulletLive = 0;
+    lastClear = 0;
+    WIN = 0;
+}
+
 
 int mainDebug(void) { // Debug main
   __disable_irq();
@@ -142,7 +202,7 @@ int mainDebug(void) { // Debug main
   TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
   TimerG12_IntArm(80000000 / 30, 2);               // initialize interrupts on TimerG12 at 30 Hz
   // initialize all data structures
-  playerInit(&thePlayer);
+  playerInit(&thePlayer, playerHPdemo);
   __enable_irq();
   UPDATE = 0;
   int16_t spdx, spdy, x, y, xOld, yOld;
@@ -167,7 +227,7 @@ int mainDebug(void) { // Debug main
       ST7735_SetCursor(0,4);
       printf("Button: %2i", switchData);
       ST7735_SetCursor(0,5);
-      printf("DashAvail: %1i", DASH);
+      printf("WARPAvail: %1i", WARP);
     }
 
     // check for end game or level switch
@@ -269,11 +329,13 @@ int main2(void)
   ST7735_DrawBitmap(60, 9, SmallEnemy20pointB, 16, 10);
   ST7735_DrawBitmap(80, 9, SmallEnemy30pointA, 16, 10);
   */
+  /*
   ST7735_DrawBitmap(96, 100, red_Bullet, 5, 5);
   ST7735_DrawBitmap(32, 100, blue_Bullet, 5, 5);
   ST7735_DrawBitmap(64, 100, player_Bullet, 2, 2);
   ST7735_DrawBitmap(59, 128, player, 11, 11);
   ST7735_DrawBitmap(52, 90, enemy, 25, 25);
+  */
   for (uint32_t t = 500; t > 0; t = t - 5)
   {
     SmallFont_OutVertical(t, 104, 6); // top left
@@ -393,7 +455,7 @@ int main4(void)
     }
     if ((last == 0) && (now == 8))
     {
-      Sound_Fastinvader1(); // call one of your sounds
+      //Sound_Fastinvader1(); // call one of your sounds
     }
     // modify this to test all your sounds
   }
