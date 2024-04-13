@@ -25,8 +25,10 @@
 #define RT (1<<27)
 #define SP (1<<16)
 
-extern uint32_t *ADCX;
-extern uint32_t *ADCY;
+
+
+extern uint32_t ADCX;
+extern uint32_t ADCY;
 extern uint8_t HPFLAG;
 extern uint8_t WARP;
 extern uint8_t PLAYERUPDATE;
@@ -38,6 +40,20 @@ extern uint8_t bulletHit;
 extern int8_t bulletLive;
 extern uint8_t lastClear;
 extern uint8_t WIN;
+extern uint8_t WIN;
+extern uint8_t GAMESTART;
+extern uint8_t LANGSELECT;
+extern uint8_t LANGMODE;
+extern uint8_t OPTIONSELECT;
+extern uint32_t switchDataA;
+extern uint32_t switchDataB;
+extern uint8_t OPTIONSELECT;
+extern uint8_t MAINMENU;
+extern uint16_t score;
+extern uint8_t FIRSTUPDATE;
+extern uint8_t CONTROLS;
+extern uint8_t LORE;
+extern uint8_t LOREUPDATE;
 
 void playerInit(Entity_t *thePlayer, uint16_t hp){  //Initializes player
     thePlayer->x = 128;
@@ -162,6 +178,7 @@ void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer){
             bulletHit = 1;
             bulletLive = 0;
             lastClear = 1;
+            score++;
         } else if((x > 160 || x < 0) || (y > 128 || y < 0)){    //bullet hit wall?
             bulletLive = 0;
             bulletHit = 0;
@@ -302,6 +319,359 @@ void drawPlayerBullet(Entity_t *Bullet){        //draw bullet
 void clearPlayerBullet(){       //clears last instance of bullet
     ST7735_DrawBitmap(PByOld, PBxOld, player_BulletOld, 2, 2);
     lastClear = 0;
+}
+
+
+void drawLangScrn(){        //Language select screen
+    ST7735_SetCursor(6, 1);
+    ST7735_OutStringCool("Language", 2, ST7735_WHITE);
+    ST7735_SetCursor(11, 5);
+    ST7735_OutStringCool("English", 1, ST7735_WHITE);
+    ST7735_SetCursor(5, 7);
+    ST7735_OutStringCool("Bosanski / Hrvatski", 1, ST7735_WHITE);
+    ST7735_SetCursor(9, 10);
+    ST7735_OutStringCool("Jezik", 2, ST7735_WHITE);
+
+    ST7735_DrawBitmap(47, 111, iconup, 11, 11);
+    ST7735_DrawBitmap(68, 147, icondwn, 11, 11);
+}
+
+void drawEngOpt(){
+    ST7735_SetCursor(7, 1);
+    ST7735_OutStringCool("Options", 2, ST7735_WHITE);
+    ST7735_SetCursor(4, 3);
+    ST7735_OutStringCool("       PlyrHP BossHP", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 4);
+    ST7735_OutStringCool("Demo     13    min", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 5);
+    ST7735_OutStringCool("Easy      7    low", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 6);
+    ST7735_OutStringCool("Normal    5    med", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 7);
+    ST7735_OutStringCool("Hard      3    high", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 9);
+    ST7735_OutStringCool("No-Hit    1    most", 1, ST7735_WHITE);
+
+    ST7735_DrawBitmap(35, 155, iconup, 11, 11);
+    ST7735_DrawBitmap(47, 155, iconrt, 11, 11);
+    ST7735_DrawBitmap(59, 155, icondwn, 11, 11);
+    ST7735_DrawBitmap(71, 155, iconlft, 11, 11);
+    ST7735_DrawBitmap(89, 155, joystick, 10, 10);
+}
+
+void drawBHOpt(){
+    ST7735_SetCursor(7, 1);
+        ST7735_OutStringCool("Opcije", 2, ST7735_WHITE);
+        ST7735_SetCursor(4, 3);
+        ST7735_OutStringCool("       IgrcHP SefHP", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 4);
+        ST7735_OutStringCool("Demo     13    manje", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 5);
+        ST7735_OutStringCool("Lako      7    malo", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 6);
+        ST7735_OutStringCool("Normalno  5   srednje", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 7);
+        ST7735_OutStringCool("Tesko     3    puno", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 9);
+        ST7735_OutStringCool("Bez-Udar  1    vise", 1, ST7735_WHITE);
+
+        ST7735_DrawBitmap(35, 155, iconup, 11, 11);
+        ST7735_DrawBitmap(47, 155, iconrt, 11, 11);
+        ST7735_DrawBitmap(59, 155, icondwn, 11, 11);
+        ST7735_DrawBitmap(71, 155, iconlft, 11, 11);
+        ST7735_DrawBitmap(89, 155, joystick, 10, 10);
+}
+
+void drawTitleEng(){
+    ST7735_DrawBitmap(13, 143, TITLE, 15, 127);
+    ST7735_SetCursor(11, 4);
+    ST7735_OutStringCool("Start", 1, ST7735_WHITE);
+    ST7735_SetCursor(11, 6);
+    ST7735_OutStringCool("Options", 1, ST7735_WHITE);
+    ST7735_SetCursor(11, 8);
+    ST7735_OutStringCool("Controls", 1, ST7735_WHITE);
+    ST7735_SetCursor(11, 10);
+    ST7735_OutStringCool("Lore", 1, ST7735_WHITE);
+    ST7735_DrawBitmap(37, 111, iconup, 11, 11);
+    ST7735_DrawBitmap(57, 111, icondwn, 11, 11);
+    ST7735_DrawBitmap(77, 111, iconlft, 11, 11);
+    ST7735_DrawBitmap(97, 111, iconrt, 11, 11);
+
+}
+
+void drawTitleBH(){
+    ST7735_DrawBitmap(13, 143, TITLE, 15, 127);
+    ST7735_SetCursor(11, 4);
+    ST7735_OutStringCool("Pocni", 1, ST7735_WHITE);
+    ST7735_SetCursor(11, 6);
+    ST7735_OutStringCool("Opcije", 1, ST7735_WHITE);
+    ST7735_SetCursor(11, 8);
+    ST7735_OutStringCool("Kontrole", 1, ST7735_WHITE);
+    ST7735_SetCursor(11, 10);
+    ST7735_OutStringCool("Prica", 1, ST7735_WHITE);
+    ST7735_DrawBitmap(37, 111, iconup, 11, 11);
+    ST7735_DrawBitmap(57, 111, icondwn, 11, 11);
+    ST7735_DrawBitmap(77, 111, iconlft, 11, 11);
+    ST7735_DrawBitmap(97, 111, iconrt, 11, 11);
+}
+
+void gameOverEng(){
+    ST7735_SetCursor(4, 1);
+    ST7735_OutStringCool("GAME OVER!", 2, ST7735_RED);
+    ST7735_SetCursor(10, 7);
+    ST7735_OutStringCool("Score:", 1, ST7735_WHITE);
+    printf("%i", score);
+
+}
+
+void gameOverBH(){
+    ST7735_SetCursor(2, 1);
+    ST7735_OutStringCool("IGRA GOTOVA!", 2, ST7735_RED);
+    ST7735_SetCursor(9, 7);
+    ST7735_OutStringCool("Rezultat:", 1, ST7735_WHITE);
+    printf("%i", score);
+}
+
+void winEng(){
+    ST7735_SetCursor(6, 1);
+    ST7735_OutStringCool("YOU WIN!", 2, ST7735_GREEN);
+    ST7735_SetCursor(10, 7);
+    ST7735_OutStringCool("Score:", 1, ST7735_WHITE);
+    printf("%i", score);
+}
+
+void winBH(){
+    ST7735_SetCursor(6, 1);
+    ST7735_OutStringCool("POBJEDA!", 2, ST7735_GREEN);
+    ST7735_SetCursor(9, 7);
+    ST7735_OutStringCool("Rezultat:", 1, ST7735_WHITE);
+    printf("%i", score);
+}
+
+void controlsEng(){
+    ST7735_SetCursor(6, 1);
+    ST7735_OutStringCool("Controls", 2, ST7735_WHITE);
+    ST7735_SetCursor(5, 4);
+    ST7735_OutStringCool("Shoot - Auto aim", 1, ST7735_WHITE);
+    ST7735_SetCursor(5, 6);
+    ST7735_OutStringCool("Speed shift - Slow", 1, ST7735_WHITE);
+    ST7735_SetCursor(5, 8);
+    ST7735_OutStringCool("Warp - Teleport ~7sec", 1, ST7735_WHITE);
+    ST7735_SetCursor(5, 10);
+    ST7735_OutStringCool("Pause - Pause game", 1, ST7735_WHITE);
+    ST7735_DrawBitmap(37, 151, iconrt, 11, 11);
+    ST7735_DrawBitmap(57, 151, icondwn, 11, 11);
+    ST7735_DrawBitmap(77, 151, iconlft, 11, 11);
+    ST7735_DrawBitmap(97, 151, iconup, 11, 11);
+}
+
+void controlsBH(){
+    ST7735_SetCursor(6, 1);
+    ST7735_OutStringCool("Kontrole", 2, ST7735_WHITE);
+    ST7735_SetCursor(5, 4);
+    ST7735_OutStringCool("Pucaj - Auto aim", 1, ST7735_WHITE);
+    ST7735_SetCursor(5, 6);
+    ST7735_OutStringCool("Mjen brzine - Sporije", 1, ST7735_WHITE);
+    ST7735_SetCursor(5, 8);
+    ST7735_OutStringCool("Warp - Teleport ~7sec", 1, ST7735_WHITE);
+    ST7735_SetCursor(5, 10);
+    ST7735_OutStringCool("Pauza - Zaustavi igru", 1, ST7735_WHITE);
+    ST7735_DrawBitmap(37, 151, iconrt, 11, 11);
+    ST7735_DrawBitmap(57, 151, icondwn, 11, 11);
+    ST7735_DrawBitmap(77, 151, iconlft, 11, 11);
+    ST7735_DrawBitmap(97, 151, iconup, 11, 11);
+}
+
+void loreEng(){
+    ST7735_SetCursor(1, 0);
+    ST7735_OutStringCool("Word has it that Valvano ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 1);
+    ST7735_OutStringCool("will make the final impos-", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 2);
+    ST7735_OutStringCool("-sible. He has fled in his", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 3);
+    ST7735_OutStringCool("spaceship to avoid being", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 4);
+    ST7735_OutStringCool("hunted down. You have ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 5);
+    ST7735_OutStringCool("decided to hunt him. Beat", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 6);
+    ST7735_OutStringCool("him to get the answer key", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 7);
+    ST7735_OutStringCool("and save the 319k students", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 9);
+    ST7735_OutStringCool("  You are the last hope.  ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 11);
+    ST7735_OutStringCool("    Press any button", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 12);
+    ST7735_OutStringCool("       to return", 1, ST7735_WHITE);
+}
+
+void loreBH(){
+    ST7735_SetCursor(1, 0);
+    ST7735_OutStringCool("Izgleda da ce Valvano", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 1);
+    ST7735_OutStringCool("napravit zadnji ispit nem-", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 2);
+    ST7735_OutStringCool("-oguce. Pobjego je u svem-", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 3);
+    ST7735_OutStringCool("-irski brod da ga ne bi", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 4);
+    ST7735_OutStringCool("lovili studente. Ti ces", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 5);
+    ST7735_OutStringCool("ga uhvatit. Pobjedi ga da", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 6);
+    ST7735_OutStringCool("dobjes odgovore za ispit,", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 7);
+    ST7735_OutStringCool("i da spasis 319k studente", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 9);
+    ST7735_OutStringCool(" Ti si zadnji sto mozes. ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 11);
+    ST7735_OutStringCool("    Pritizni sta god", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 12);
+    ST7735_OutStringCool("      da se vratis", 1, ST7735_WHITE);
+}
+
+void lore(){
+    if(LOREUPDATE){
+        if(LANGMODE == 1) loreEng();
+        if(LANGMODE == 2) loreBH();
+    }
+    if(switchDataA > 0){
+        MAINMENU = 1;
+        LORE = 0;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    LOREUPDATE = 0;
+}
+
+void controls(){
+    if(LANGMODE == 1) controlsEng();
+    if(LANGMODE == 2) controlsBH();
+    if(switchDataA > 0){
+        MAINMENU = 1;
+        CONTROLS = 0;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+}
+
+void langSelect(){
+    drawLangScrn();
+    if((switchDataA&UP) == UP){
+        LANGMODE = 1; //ENG
+        LANGSELECT = 0;
+        MAINMENU = 1;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if((switchDataA&DWN) == DWN){
+        LANGMODE = 2; //BH
+        LANGSELECT = 0;
+        MAINMENU = 1;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+}
+
+void mainMenu(){
+    if(LANGMODE == 1) drawTitleEng();
+    if(LANGMODE == 2) drawTitleBH();
+
+    if((switchDataA&UP) == UP){
+        GAMESTART = 1;
+        MAINMENU = 0;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if((switchDataA&DWN) == DWN){
+        OPTIONSELECT = 1;
+        MAINMENU = 0;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if((switchDataA&LFT) == LFT){
+        CONTROLS = 1;
+        MAINMENU = 0;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+        }
+    if((switchDataA&RT) == RT){
+        LORE = 1;
+        MAINMENU = 0;
+        LOREUPDATE = 1;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+}
+
+void win(){
+    if(LANGMODE == 1) winEng();
+    if(LANGMODE == 2) winBH();
+}
+
+void lose(){
+    if(LANGMODE == 1) gameOverEng();
+    if(LANGMODE == 2) gameOverBH();
+}
+
+#define playerHPdemo 13
+#define playerHPeasy 7
+#define playerHPnormal 5
+#define playerHPhard 3
+#define playerHPnohit 1
+
+#define enemyHPdemo 15
+#define enemyHPeasy 30
+#define enemyHPnormal 45
+#define enemyHPhard 60
+#define enemyHPnohit 75
+
+void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playerHP and enemyHP)
+    if(LANGMODE == 1) drawEngOpt();
+    if(LANGMODE == 2) drawBHOpt();
+
+    if((switchDataA&UP) == UP){
+        OPTIONSELECT = 0;
+        MAINMENU = 1;
+        playerInit(thePlayer, playerHPdemo);             // inits player
+        enemyInit(theEnemy, enemyHPdemo);               // inits enemy
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if((switchDataA&RT) == RT){
+        OPTIONSELECT = 0;
+        MAINMENU = 1;
+        playerInit(thePlayer, playerHPeasy);             // inits player
+        enemyInit(theEnemy, enemyHPeasy);               // inits enemy
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if((switchDataA&DWN) == DWN){
+        OPTIONSELECT = 0;
+        MAINMENU = 1;
+        playerInit(thePlayer, playerHPnormal);             // inits player
+        enemyInit(theEnemy, enemyHPnormal);               // inits enemy
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if((switchDataA&LFT) == LFT){
+        OPTIONSELECT = 0;
+        MAINMENU = 1;
+        playerInit(thePlayer, playerHPhard);             // inits player
+        enemyInit(theEnemy, enemyHPhard);               // inits enemy
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if((switchDataB&SP) == SP){
+        OPTIONSELECT = 0;
+        MAINMENU = 1;
+        playerInit(thePlayer, playerHPnohit);             // inits player
+        enemyInit(theEnemy, enemyHPnohit);               // inits enemy
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
 }
 
 void drawEnemyBullet(){

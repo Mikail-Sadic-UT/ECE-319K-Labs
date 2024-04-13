@@ -60,8 +60,8 @@ uint32_t Random(uint32_t n){
 
 uint8_t GAMEMODE;
 
-uint32_t *ADCX;
-uint32_t *ADCY;
+uint32_t ADCX;
+uint32_t ADCY;
 
 uint32_t switchDataA;
 uint32_t switchDataB;
@@ -77,6 +77,17 @@ uint8_t bulletHit;
 uint8_t bulletLive;
 uint8_t lastClear;
 uint8_t WIN;
+uint8_t GAMESTART;
+uint8_t LANGSELECT;
+uint8_t LANGMODE;
+uint8_t OPTIONSELECT;
+uint8_t MAINMENU;
+uint16_t score;
+uint8_t FIRSTUPDATE;
+uint8_t CONTROLS;
+uint8_t LORE;
+uint8_t LOREUPDATE;
+
 
 Entity_t thePlayer;
 
@@ -98,19 +109,21 @@ void TIMG12_IRQHandler(void){           //Game Engine
       switchDataA = Switch_InA();       //Gets PA switch vals
       switchDataB = Switch_InB();       //Gets PB switch Vals
       switchData = SwitchHandler(switchDataA, switchDataB, &thePlayer); //Handles switch press
-      if(switchData == 1) setPlayerBulletTrajectory(&thePlayer, &playerBullet); //Shoot bullet to bad guy
-      if(coordCounter == 2) updateCoords(&thePlayer);   //Updates player coord at 15hz
-      updatePlayerBulletCoords(&playerBullet, &thePlayer);  //updates player bullet
-      if(bulletHit) updateEnemyHP(&theEnemy);   //Updates enemy HP on hit
-      WARPCounter++;                    //Warp timer++
-      coordCounter++;                   //Coord timer++
-      if(WARPCounter > 254){            //WARP timer ~7sec
-          WARPCounter = 0;
-          WARP = 1;
+      if(GAMESTART){
+          if(switchData == 1) setPlayerBulletTrajectory(&thePlayer, &playerBullet); //Shoot bullet to bad guy
+          //if(coordCounter == 2)
+              updateCoords(&thePlayer);   //Updates player coord at 15hz
+          updatePlayerBulletCoords(&playerBullet, &thePlayer);  //updates player bullet
+          if(bulletHit) updateEnemyHP(&theEnemy);   //Updates enemy HP on hit
+          WARPCounter++;                    //Warp timer++
+          coordCounter++;                   //Coord timer++
+          if(WARPCounter > 254){            //WARP timer ~7sec
+              WARPCounter = 0;
+              WARP = 1;
+          }
+          collisionCheck(&thePlayer, &theEnemy);    //Checks collision
+          if(HPFLAG) setHPLED(&thePlayer);  //Sets HPLEDS based on player HP
       }
-      collisionCheck(&thePlayer, &theEnemy);    //Checks collision
-      if(HPFLAG) setHPLED(&thePlayer);  //Sets HPLEDS based on player HP
-
       //start sounds
       UPDATE = 1;                       //Update flag
   }
@@ -136,56 +149,76 @@ uint8_t TExaS_LaunchPadLogicPB27PB26(void) {return (0x80 | ((GPIOB->DOUT31_0 >> 
 #define ADCVREF_VDDA 0x000
 
 int main(void) { // main
-  __disable_irq();
-  PLL_Init();
-  LaunchPad_Init();
-  ST7735_InitPrintf();
-  ST7735_FillScreen(ST7735_BLACK);
-  ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);           // init Dual ADC
-  Switch_Init();                                    // initialize switches
-  LED_Init();                                       // initialize LED
-  Sound_Init();                                     // initialize sound
-  TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26);  // PB27 and PB26
-  TimerG12_IntArm(80000000 / 30, 2);                // initialize interrupts on TimerG12 at 30 Hz
-  gameInit();                                       // data structure inits
-  __enable_irq();
+    __disable_irq();
+    PLL_Init();
+    LaunchPad_Init();
+    gameInit();                                       // data structure inits
+    TimerG12_IntArm(80000000 / 30, 2);                // initialize interrupts on TimerG12 at 30 Hz
+    __enable_irq();
 
   while (1) {
-    if (UPDATE) {
-
-      if(PLAYERUPDATE) drawPlayer(&thePlayer);
-      if(ENEMYUPDATE || bulletHit) drawEnemy(&theEnemy);
-      if(bulletLive > 0) drawPlayerBullet(&playerBullet);
-      if(lastClear) clearPlayerBullet();
-
+    if (UPDATE) {   //30hz
+        if(GAMESTART){  //if game has started run this
+            if(PLAYERUPDATE || FIRSTUPDATE) drawPlayer(&thePlayer);
+            if(ENEMYUPDATE || bulletHit) drawEnemy(&theEnemy);
+            if(bulletLive > 0) drawPlayerBullet(&playerBullet);
+            if(lastClear) clearPlayerBullet();
+            FIRSTUPDATE = 0;
+        } else {    //else do menus
+            if(LANGSELECT) langSelect();
+            if(MAINMENU) mainMenu();
+            if(OPTIONSELECT) Options(&thePlayer, &theEnemy);
+            if(CONTROLS) controls();
+            if(LORE) lore();
+        }
       UPDATE = 0;
     }
     while(GAMEOVER){
         if(CRASH){
-            printf("you crashed lol"); //this is if you crashed into enemy
+            ST7735_SetCursor(8, 10);
+            if(LANGMODE == 1) ST7735_OutStringCool("You crashed!", 1, ST7735_ORANGE);   //IMPORTANT!!!  For code to run, need to use updated ST7735.c and ST7735.h (will only work for horizontal screen)
+            if(LANGMODE == 2) ST7735_OutStringCool("Sudarijo se!", 1, ST7735_ORANGE);
         }
+        lose();
         while(1){}
     }
     while(WIN){
-        printf("u win!");
+        win();
         while(1){}
     }
   }
 }
 
 void gameInit(){ // Flag inits
-    playerInit(&thePlayer, playerHPdemo);             // inits player
-    enemyInit(&theEnemy, enemyHPdemo);               // inits enemy
-    UPDATE = 0;
-    HPFLAG = 1;
-    ENEMYUPDATE = 1;
-    PLAYERUPDATE = 1;
-    GAMEOVER = 0;
-    CRASH = 0;
-    bulletHit = 0;
-    bulletLive = 0;
-    lastClear = 0;
-    WIN = 0;
+      ST7735_InitPrintf();
+      ST7735_FillScreen(ST7735_BLACK);
+      ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);           // init Dual ADC
+      Switch_Init();                                    // initialize switches
+      LED_Init();                                       // initialize LED
+      Sound_Init();                                     // initialize sound
+      TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26);  // PB27 and PB26
+      playerInit(&thePlayer, playerHPeasy);             // inits player
+      enemyInit(&theEnemy, enemyHPeasy);               // inits enemy
+      UPDATE = 0;
+      HPFLAG = 1;
+      ENEMYUPDATE = 1;
+      PLAYERUPDATE = 1;
+      GAMEOVER = 0;
+      CRASH = 0;
+      bulletHit = 0;
+      bulletLive = 0;
+      lastClear = 0;
+      WIN = 0;
+      GAMESTART = 0;
+      LANGSELECT = 1;
+      OPTIONSELECT = 0;
+      LANGMODE = 0;
+      MAINMENU = 0;
+      score = 0;
+      FIRSTUPDATE = 1;
+      LORE = 0;
+      CONTROLS = 0;
+      LOREUPDATE = 0;
 }
 
 
@@ -314,44 +347,36 @@ int main2(void)
   PLL_Init(); // set bus speed
   LaunchPad_Init();
   ST7735_InitPrintf();
-  // note: if you colors are weird, see different options for
-  //  ST7735_InitR(INITR_REDTAB); inside ST7735_InitPrintf()
   ST7735_FillScreen(ST7735_BLACK);
-  /*
-  ST7735_DrawBitmap(22, 159, PlayerShip0, 18, 8); // player ship bottom
-  ST7735_DrawBitmap(53, 151, Bunker0, 18, 5);
-  ST7735_DrawBitmap(42, 159, PlayerShip1, 18, 8); // player ship bottom
-  ST7735_DrawBitmap(62, 159, PlayerShip2, 18, 8); // player ship bottom
-  ST7735_DrawBitmap(82, 159, PlayerShip3, 18, 8); // player ship bottom
-  ST7735_DrawBitmap(0, 9, SmallEnemy10pointA, 16, 10);
-  ST7735_DrawBitmap(20, 9, SmallEnemy10pointB, 16, 10);
-  ST7735_DrawBitmap(40, 9, SmallEnemy20pointA, 16, 10);
-  ST7735_DrawBitmap(60, 9, SmallEnemy20pointB, 16, 10);
-  ST7735_DrawBitmap(80, 9, SmallEnemy30pointA, 16, 10);
-  */
-  /*
-  ST7735_DrawBitmap(96, 100, red_Bullet, 5, 5);
-  ST7735_DrawBitmap(32, 100, blue_Bullet, 5, 5);
-  ST7735_DrawBitmap(64, 100, player_Bullet, 2, 2);
-  ST7735_DrawBitmap(59, 128, player, 11, 11);
-  ST7735_DrawBitmap(52, 90, enemy, 25, 25);
-  */
-  for (uint32_t t = 500; t > 0; t = t - 5)
-  {
-    SmallFont_OutVertical(t, 104, 6); // top left
-    Clock_Delay1ms(50);               // delay 50 msec
-  }
-  ST7735_FillScreen(0x0000); // set screen to black
-  ST7735_SetCursor(1, 1);
-  ST7735_OutString("GAME OVER");
-  ST7735_SetCursor(1, 2);
-  ST7735_OutString("Nice try,");
-  ST7735_SetCursor(1, 3);
-  ST7735_OutString("Peanits!");
-  ST7735_SetCursor(2, 4);
-  ST7735_OutUDec(1234);
   while (1)
   {
+      drawLangScrn();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
+      drawTitleEng();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
+      drawTitleBH();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
+      drawEngOpt();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
+      drawBHOpt();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
+      gameOverEng();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
+      gameOverBH();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
+      winEng();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
+      winBH();
+      Clock_Delay1ms(1000);
+      ST7735_FillScreen(ST7735_BLACK);
   }
 }
 
@@ -394,7 +419,7 @@ int main3(void)
 }
 
 
-int main0(void)
+int main89(void)
 {
   __disable_irq();
   PLL_Init(); // set bus speed
