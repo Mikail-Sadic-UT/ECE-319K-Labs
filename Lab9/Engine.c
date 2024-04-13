@@ -701,6 +701,49 @@ void bulletCollisionCheck(Entity_t *Player, Entity_t *Bullet) { //WIP
     }
 }
 
+void winHandler(){
+    win();
+    ST7735_SetCursor(1, 11);
+    if(LANGMODE == 1) ST7735_OutStringCool("Press any button to reset", 1, ST7735_WHITE);
+    if(LANGMODE == 2) {
+        ST7735_SetCursor(4, 11);
+        ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 12);
+        ST7735_OutStringCool("     resetujes     ", 1, ST7735_WHITE);
+    }
+    while(WIN){
+        if(switchDataA > 0){
+            Clock_Delay1ms(2000);
+            gameInit();
+            Clock_Delay1ms(1000);
+        }
+    }
+}
+
+void gameEndHandler(){
+    if(CRASH){
+        ST7735_SetCursor(8, 9);
+        if(LANGMODE == 1) ST7735_OutStringCool("You crashed!", 1, ST7735_ORANGE);   //IMPORTANT!!!  For code to run, need to use updated ST7735.c and ST7735.h (will only work for horizontal screen)
+        if(LANGMODE == 2) ST7735_OutStringCool("Sudarijo se!", 1, ST7735_ORANGE);
+    }
+    ST7735_SetCursor(1, 11);
+    if(LANGMODE == 1) ST7735_OutStringCool("Press any button to reset", 1, ST7735_WHITE);
+    if(LANGMODE == 2) {
+        ST7735_SetCursor(4, 11);
+        ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 12);
+        ST7735_OutStringCool("     resetujes     ", 1, ST7735_WHITE);
+    }
+    lose();
+    while(GAMEOVER){
+        if(switchDataA > 0){
+            Clock_Delay1ms(2000);
+            gameInit();
+            Clock_Delay1ms(1000);
+        }
+    }
+}
+
 /*
 void newPLayerBullet(*PlayetBullet_t a, uint_8_t x, uint8_t y, ... (everything else)){
 

@@ -5,4 +5,6 @@ int main(void);
 
 void gameInit();
 
+void initInit();
+
 #endif

@@ -84,4 +84,8 @@ void controls();
 
 void lore();
 
+void winHandler();
+
+void gameEndHandler();
+
 #endif

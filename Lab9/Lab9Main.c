@@ -152,10 +152,10 @@ int main(void) { // main
     __disable_irq();
     PLL_Init();
     LaunchPad_Init();
-    gameInit();                                       // data structure inits
     TimerG12_IntArm(80000000 / 30, 2);                // initialize interrupts on TimerG12 at 30 Hz
     __enable_irq();
-
+    initInit();
+    gameInit();                                       // data structure inits
   while (1) {
     if (UPDATE) {   //30hz
         if(GAMESTART){  //if game has started run this
@@ -173,30 +173,13 @@ int main(void) { // main
         }
       UPDATE = 0;
     }
-    while(GAMEOVER){
-        if(CRASH){
-            ST7735_SetCursor(8, 10);
-            if(LANGMODE == 1) ST7735_OutStringCool("You crashed!", 1, ST7735_ORANGE);   //IMPORTANT!!!  For code to run, need to use updated ST7735.c and ST7735.h (will only work for horizontal screen)
-            if(LANGMODE == 2) ST7735_OutStringCool("Sudarijo se!", 1, ST7735_ORANGE);
-        }
-        lose();
-        while(1){}
-    }
-    while(WIN){
-        win();
-        while(1){}
+    while(GAMEOVER) gameEndHandler();
+    while(WIN) winHandler();
     }
   }
-}
 
 void gameInit(){ // Flag inits
-      ST7735_InitPrintf();
-      ST7735_FillScreen(ST7735_BLACK);
-      ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);           // init Dual ADC
-      Switch_Init();                                    // initialize switches
-      LED_Init();                                       // initialize LED
-      Sound_Init();                                     // initialize sound
-      TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26);  // PB27 and PB26
+    ST7735_FillScreen(ST7735_BLACK);
       playerInit(&thePlayer, playerHPeasy);             // inits player
       enemyInit(&theEnemy, enemyHPeasy);               // inits enemy
       UPDATE = 0;
@@ -221,6 +204,15 @@ void gameInit(){ // Flag inits
       LOREUPDATE = 0;
 }
 
+void initInit(){
+    ST7735_InitPrintf();
+    ST7735_FillScreen(ST7735_BLACK);
+    ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);           // init Dual ADC
+    Switch_Init();                                    // initialize switches
+    LED_Init();                                       // initialize LED
+    Sound_Init();                                     // initialize sound
+    TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26);  // PB27 and PB26
+}
 
 int mainDebug(void) { // Debug main
   __disable_irq();
