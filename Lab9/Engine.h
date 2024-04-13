@@ -42,47 +42,7 @@ void bulletCollisionCheck(Entity_t *Player, Entity_t *Bullet);  //WIP
 
 uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer); //Handles switch presses for player
 
-void drawPlayer(Entity_t *thePlayer);   //Draws Player
-
-void drawEnemy(Entity_t *theEnemy);     //Draws Enemy
-
-void drawPlayerBullet(Entity_t *Bullet);    //Draws player bullet
-
-void clearPlayerBullet();   //clears last instance of player bullet
-
 void updateEnemyHP(Entity_t *Enemy);    //updates enemy hp on hit
-
-void drawLangScrn();
-
-void drawEngOpt();
-
-void drawBHOpt();
-
-void drawTitleEng();
-
-void drawTitleBH();
-
-void gameOverEng();
-
-void gameOverBH();
-
-void winEng();
-
-void winBH();
-
-void langSelect();
-
-void mainMenu();
-
-void win();
-
-void lose();
-
-void Options(Entity_t *thePlayer, Entity_t *theEnemy);
-
-void controls();
-
-void lore();
 
 void winHandler();
 

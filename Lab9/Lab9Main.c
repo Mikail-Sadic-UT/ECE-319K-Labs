@@ -18,10 +18,11 @@
 #include "LED.h"
 #include "Switch.h"
 #include "Sound.h"
-//#include "images/images.h"
 #include "Engine.h"
 #include "Lab9Main.h"
-
+#include "menuHandler.h"
+#include "Graphics.h"
+                                                    //IMPORTANT!!!  For code to run, need to use updated ST7735.c and ST7735.h (will only work for horizontal screen)
 #define R3D (1 << 17)
 #define YEL (1 << 28) // Info
 #define GRN (1 << 31)
@@ -99,7 +100,6 @@ Entity_t enemyBullets;
 
 uint8_t WARPCounter = 0;
 uint8_t coordCounter = 0;
-
 uint8_t switchData;
 
 void TIMG12_IRQHandler(void){           //Game Engine
@@ -111,8 +111,7 @@ void TIMG12_IRQHandler(void){           //Game Engine
       switchData = SwitchHandler(switchDataA, switchDataB, &thePlayer); //Handles switch press
       if(GAMESTART){
           if(switchData == 1) setPlayerBulletTrajectory(&thePlayer, &playerBullet); //Shoot bullet to bad guy
-          //if(coordCounter == 2)
-              updateCoords(&thePlayer);   //Updates player coord at 15hz
+          updateCoords(&thePlayer);   //Updates player coord at 15hz
           updatePlayerBulletCoords(&playerBullet, &thePlayer);  //updates player bullet
           if(bulletHit) updateEnemyHP(&theEnemy);   //Updates enemy HP on hit
           WARPCounter++;                    //Warp timer++
@@ -156,27 +155,19 @@ int main(void) { // main
     __enable_irq();
     initInit();
     gameInit();                                       // data structure inits
-  while (1) {
-    if (UPDATE) {   //30hz
-        if(GAMESTART){  //if game has started run this
-            if(PLAYERUPDATE || FIRSTUPDATE) drawPlayer(&thePlayer);
-            if(ENEMYUPDATE || bulletHit) drawEnemy(&theEnemy);
-            if(bulletLive > 0) drawPlayerBullet(&playerBullet);
-            if(lastClear) clearPlayerBullet();
-            FIRSTUPDATE = 0;
-        } else {    //else do menus
-            if(LANGSELECT) langSelect();
-            if(MAINMENU) mainMenu();
-            if(OPTIONSELECT) Options(&thePlayer, &theEnemy);
-            if(CONTROLS) controls();
-            if(LORE) lore();
+    while (1) {
+        if (UPDATE) {   //30hz
+            if(GAMESTART){  //if game has started run this
+                graphicsHandler(&thePlayer, &theEnemy, &playerBullet);
+            } else {    //else do menus
+                menuHandler(&thePlayer, &theEnemy);
+            }
+            UPDATE = 0;
         }
-      UPDATE = 0;
+        while(GAMEOVER) gameEndHandler();
+        while(WIN) winHandler();
     }
-    while(GAMEOVER) gameEndHandler();
-    while(WIN) winHandler();
-    }
-  }
+}
 
 void gameInit(){ // Flag inits
     ST7735_FillScreen(ST7735_BLACK);
