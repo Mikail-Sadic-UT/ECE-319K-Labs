@@ -46,6 +46,7 @@ extern uint32_t switchDataA;
 extern uint32_t switchDataB;
 extern uint16_t score;
 uint32_t collisioncheck = 0;
+uint8_t CONTINUE;
 
 
 void playerInit(Entity_t *thePlayer, uint16_t hp){  //Initializes player
@@ -309,19 +310,17 @@ void updateEnemyHP(Entity_t *Enemy){    //if bullet hit update hp--
 
 void winHandler(){
     win();
-    ST7735_SetCursor(1, 11);
-    if(LANGMODE == 1) ST7735_OutStringCool("Press any button to reset", 1, ST7735_WHITE);
-    if(LANGMODE == 2) {
-        ST7735_SetCursor(4, 11);
-        ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
-        ST7735_SetCursor(4, 12);
-        ST7735_OutStringCool("     resetujes     ", 1, ST7735_WHITE);
-    }
+    Clock_Delay1ms(1000);
     while(WIN){
         if(switchDataA > 0){
-            Clock_Delay1ms(2000);
-            gameInit();
-            Clock_Delay1ms(1000);
+            answers();
+                while(WIN){
+                    if(switchDataA > 0){
+                        Clock_Delay1ms(500);
+                        gameInit();
+                        Clock_Delay1ms(250);
+                    }
+                }
         }
     }
 }
@@ -343,9 +342,9 @@ void gameEndHandler(){
     lose();
     while(GAMEOVER){
         if(switchDataA > 0){
-            Clock_Delay1ms(2000);
+            Clock_Delay1ms(3000);
             gameInit();
-            Clock_Delay1ms(1000);
+            Clock_Delay1ms(250);
         }
     }
 }

@@ -37,4 +37,8 @@ void controlsEng();
 
 void controlsBH();
 
+void answersEng();
+
+void answersBH();
+
 #endif

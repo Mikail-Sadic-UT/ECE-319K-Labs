@@ -175,17 +175,59 @@ void gameOverBH(){
 void winEng(){
     ST7735_SetCursor(6, 1);
     ST7735_OutStringCool("YOU WIN!", 2, ST7735_GREEN);
-    ST7735_SetCursor(10, 7);
+    ST7735_SetCursor(9, 7);
     ST7735_OutStringCool("Score:", 1, ST7735_WHITE);
     printf("%i", score);
+    ST7735_SetCursor(4, 11);
+    ST7735_OutStringCool("Press any button to", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 12);
+    ST7735_OutStringCool("     continue", 1, ST7735_WHITE);
 }
 
 void winBH(){
     ST7735_SetCursor(6, 1);
     ST7735_OutStringCool("POBJEDA!", 2, ST7735_GREEN);
-    ST7735_SetCursor(9, 7);
+    ST7735_SetCursor(8, 7);
     ST7735_OutStringCool("Rezultat:", 1, ST7735_WHITE);
     printf("%i", score);
+    ST7735_SetCursor(4, 11);
+    ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 12);
+    ST7735_OutStringCool("     nastavis     ", 1, ST7735_WHITE);
+}
+
+void answersEng(){
+    ST7735_FillScreen(ST7735_BLACK);
+    ST7735_SetCursor(1, 1);
+    ST7735_OutStringCool("Answer Sheet", 2, ST7735_GREEN);
+    ST7735_SetCursor(1, 3);
+    ST7735_OutStringCool("Note to self:", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 4);
+    ST7735_OutStringCool("Remember to make", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 5);
+    ST7735_OutStringCool("answer key", 1, ST7735_WHITE);
+    ST7735_SetCursor(10, 8);
+    ST7735_OutStringCool("~Jon Valvano :)", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 11);
+    ST7735_OutStringCool("Press any button to reset", 1, ST7735_WHITE);
+}
+
+void answersBH(){
+    ST7735_FillScreen(ST7735_BLACK);
+    ST7735_SetCursor(6, 1);
+    ST7735_OutStringCool("Odgovore", 2, ST7735_GREEN);
+    ST7735_SetCursor(1, 3);
+    ST7735_OutStringCool("Nemoj zaboravit:", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 4);
+    ST7735_OutStringCool("Napravi odgovore", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 5);
+    ST7735_OutStringCool("za ispit", 1, ST7735_WHITE);
+    ST7735_SetCursor(10, 8);
+    ST7735_OutStringCool("~Jon Valvano :)", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 11);
+    ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 12);
+    ST7735_OutStringCool("     resetujes     ", 1, ST7735_WHITE);
 }
 
 void controlsEng(){

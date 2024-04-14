@@ -21,4 +21,6 @@ void win();
 
 void lose();
 
+void answers();
+
 #endif

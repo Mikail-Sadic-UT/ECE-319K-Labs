@@ -50,6 +50,7 @@ extern uint8_t LORE;
 extern uint8_t LOREUPDATE;
 extern uint8_t LANGSELECT;
 extern uint8_t GAMESTART;
+extern uint8_t CONTINUE;
 
 
 void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){
@@ -183,6 +184,12 @@ void lore(){
 void win(){
     if(LANGMODE == 1) winEng();
     if(LANGMODE == 2) winBH();
+}
+
+void answers(){
+    Clock_Delay1ms(250);
+    if(LANGMODE == 1) answersEng();
+    if(LANGMODE == 2) answersBH();
 }
 
 void lose(){
