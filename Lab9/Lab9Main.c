@@ -75,7 +75,6 @@ uint8_t PLAYERUPDATE;
 uint8_t ENEMYUPDATE;
 uint8_t CRASH;
 uint8_t bulletHit;
-uint8_t bulletLive;
 uint8_t lastClear;
 uint8_t WIN;
 uint8_t GAMESTART;
@@ -186,7 +185,6 @@ void gameInit(){ // Flag inits
       GAMEOVER = 0;
       CRASH = 0;
       bulletHit = 0;
-      bulletLive = 0;
       lastClear = 0;
       WIN = 0;
       GAMESTART = 0;

@@ -37,7 +37,6 @@ extern uint8_t coordCounter;
 extern uint8_t GAMEOVER;
 extern uint8_t CRASH;
 extern uint8_t bulletHit;
-extern int8_t bulletLive;
 extern uint8_t lastClear;
 extern uint8_t WIN;
 extern uint8_t GAMESTART;
@@ -334,12 +333,14 @@ void winHandler(){
     win();
     Clock_Delay1ms(1000);
     while(WIN){
-        if(switchDataA > 0) answers();
-        while(WIN){
-            if(switchDataA > 0){
-                Clock_Delay1ms(500);
-                gameInit();
-                Clock_Delay1ms(250);
+        if(switchDataA > 0) {
+            answers();
+            while(WIN){
+                if(switchDataA > 0){
+                    Clock_Delay1ms(500);
+                    gameInit();
+                    Clock_Delay1ms(250);
+                }
             }
         }
     }

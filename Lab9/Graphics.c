@@ -24,7 +24,6 @@ extern uint8_t PLAYERUPDATE;
 extern uint8_t ENEMYUPDATE;
 extern uint8_t FIRSTUPDATE;
 extern uint8_t bulletHit;
-extern uint8_t bulletLive;
 
 void graphicsHandler(Entity_t *thePlayer, Entity_t *theEnemy, Entity_t *playerBullet){
     if(PLAYERUPDATE || FIRSTUPDATE) drawPlayer(thePlayer);
