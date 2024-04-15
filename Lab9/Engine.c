@@ -65,6 +65,12 @@ void enemyInit(Entity_t *theEnemy, uint16_t hp){    //Initializes enemy
     theEnemy->w = 25;
 }
 
+void bulletInit(Entity_t *thePlayer, Entity_t *Bullet){
+    Bullet->x = thePlayer->x;
+    Bullet->y = thePlayer->y;
+    Bullet->live = 0;
+}
+
 void updateCoords(Entity_t *Entity){    //Updates coord of entity
     if(Entity->w == 11) updatePlayerCoords(Entity);
     if(Entity->w == 5) updateEnemyBulletCoords(Entity);
@@ -136,27 +142,43 @@ void updateEnemyCoords(Entity_t *Entity){   //this will MAYBE be implemented lat
 }
 
 //sets trajectory of bullet dependent on player quadrant location
-void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet){
-    if(bulletLive != 2){
-        if(thePlayer->x < 100 && thePlayer->x > 76) playerBullet->spdX = 0;
-        else if(thePlayer->x > 100) playerBullet->spdX = -7;
-        else if(thePlayer->x < 74) playerBullet->spdX = 7;
+void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Entity_t *theEnemy){
+    playerBullet->live++;
+    if(playerBullet->live == 1){
+        uint8_t Px = thePlayer->x - 6;
+        uint8_t Py = thePlayer->y + 6;
+        uint8_t Ex = theEnemy->x - 13;
+        uint8_t Ey = theEnemy->y + 13;
+        int16_t dx, dy, n1, n2, b;
+        int8_t spdX, spdY;
 
-        if(thePlayer->y > 48 && thePlayer->y < 68) playerBullet->spdY = 0;
-        else if(thePlayer->y > 48) playerBullet->spdY = -7;
-        else if(thePlayer->y < 68) playerBullet->spdY = 7;
-        bulletLive = 2;
+        dx = Ex - Px;
+        dy = Py - Ey;
+        n1 = dx;
+        if(n1 < 0) n1*=-1;
+        n2 = dy;
+        if(n2 < 0) n2*=-1;
+        b = n1 + n2;
+        dx = dx<<3;
+        dy = dy<<3;
+        spdX = dx/b;
+        spdY = dy/b;
+        spdY = spdY*-1;
+        playerBullet->spdX = spdX;
+        playerBullet->spdY = spdY;
+
+        playerBullet->live = 2;
     }
 }
 
-void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer){
+void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer, Entity_t *theEnemy){
     int8_t spdX, spdY;
     int16_t xOld, yOld, x, y;
-    if(bulletLive == 0){                //bullet originates from player
+    if(Bullet->live == 0){                //bullet originates from player
         Bullet->x = thePlayer->x - 5;
         Bullet->y = thePlayer->y + 5;
         bulletHit = 0;
-    } else if(bulletLive == 2) {        //bullet will go
+    } else if(Bullet->live >= 1) {        //bullet will go
         spdX = Bullet->spdX;
         spdY = Bullet->spdY;
 
@@ -166,13 +188,13 @@ void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer){
         x = (xOld + spdX);
         y = (yOld + spdY);
 
-        if((x < 93 && x > 68) && (y < 76 && y > 51)){   //bullet hit enemy?
+        if((x < (theEnemy->x) && x > (theEnemy->x - 23)) && (y < (theEnemy->y + 23) && y > (theEnemy->y))){
             bulletHit = 1;
-            bulletLive = 0;
+            bulletInit(thePlayer, Bullet);
             lastClear = 1;
             score++;
         } else if((x > 160 || x < 0) || (y > 128 || y < 0)){    //bullet hit wall?
-            bulletLive = 0;
+            bulletInit(thePlayer, Bullet);
             bulletHit = 0;
             lastClear = 1;
         } else {
@@ -233,7 +255,7 @@ void bulletCollisionCheck(Entity_t *Player, Entity_t *Bullet) { //WIP
 
 
 
-uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer){ //Handles switch presses for player
+uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *theBullet, Entity_t *theEnemy){ //Handles switch presses for player
     int8_t spdX, spdY;
     int16_t x, y;
     spdX = thePlayer->spdX;
@@ -242,9 +264,9 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer){ //Handles sw
     y = thePlayer->y;
 
   if((A&RT) == RT){ //shoots bullet if avail
-      if(bulletLive == 0){
-          bulletLive = 1;
-      }
+      /*if(theBullet->live == 0 && GAMESTART){
+          theBullet->live = 1;
+      }*/
       return 1;
   }
   if((A&DWN) == DWN){   //Speed down
@@ -312,15 +334,13 @@ void winHandler(){
     win();
     Clock_Delay1ms(1000);
     while(WIN){
-        if(switchDataA > 0){
-            answers();
-                while(WIN){
-                    if(switchDataA > 0){
-                        Clock_Delay1ms(500);
-                        gameInit();
-                        Clock_Delay1ms(250);
-                    }
-                }
+        if(switchDataA > 0) answers();
+        while(WIN){
+            if(switchDataA > 0){
+                Clock_Delay1ms(500);
+                gameInit();
+                Clock_Delay1ms(250);
+            }
         }
     }
 }
@@ -340,9 +360,10 @@ void gameEndHandler(){
         ST7735_OutStringCool("     resetujes     ", 1, ST7735_WHITE);
     }
     lose();
+    Clock_Delay1ms(2000);
     while(GAMEOVER){
         if(switchDataA > 0){
-            Clock_Delay1ms(3000);
+            Clock_Delay1ms(1000);
             gameInit();
             Clock_Delay1ms(250);
         }

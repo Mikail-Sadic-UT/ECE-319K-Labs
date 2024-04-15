@@ -6,10 +6,10 @@ struct Entity
   uint8_t hp;
   uint8_t x;
   uint8_t y;
-  uint32_t *image; // img of sprite
-  uint8_t h, w;    // height and width of sprite
+  uint8_t h, w;
   int8_t spdX;
   int8_t spdY;
+  uint8_t live; //for bullets if live
 };
 typedef struct Entity Entity_t;
 
@@ -17,6 +17,8 @@ typedef struct Entity Entity_t;
 void playerInit(Entity_t *thePlayer, uint16_t hp);  //Initializes player
 
 void enemyInit(Entity_t *theEnemy, uint16_t hp);    //Initializes enemy
+
+void bulletInit(Entity_t *thePlayer, Entity_t *Bullet);
 
 void setSpeed(Entity_t *thePlayer);     //sets Player speed
 
@@ -26,9 +28,9 @@ void updatePlayerCoords(Entity_t *Entity);  //Updates player coords
 
 void updateEnemyCoords(Entity_t *Entity);   //Updates enemy coords (WIP)
 
-void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet);
+void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Entity_t *theEnemy);
 
-void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer);    //WIP
+void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer, Entity_t *theEnemy);    //WIP
 
 void updateEnemyBulletCoords(Entity_t *Entity);     //WIP
 
@@ -40,7 +42,7 @@ void crashCheck(Entity_t *Player, Entity_t *Enemy); //ends game if crash into en
 
 void bulletCollisionCheck(Entity_t *Player, Entity_t *Bullet);  //WIP
 
-uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer); //Handles switch presses for player
+uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *theBullet, Entity_t *theEnemy); //Handles switch presses for player
 
 void updateEnemyHP(Entity_t *Enemy);    //updates enemy hp on hit
 

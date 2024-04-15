@@ -39,14 +39,14 @@
 #define playerHPhard 3
 #define playerHPnohit 1
 
-#define enemyHPdemo 15
-#define enemyHPeasy 30
-#define enemyHPnormal 45
-#define enemyHPhard 60
-#define enemyHPnohit 75
+#define enemyHPdemo 30
+#define enemyHPeasy 60
+#define enemyHPnormal 75
+#define enemyHPhard 90
+#define enemyHPnohit 105
 
-#define playerBulletBuffer 15
-#define enemyBulletBuffer 255
+#define playerBulletBuffer 8
+#define enemyBulletBuffer 32
 
 void PLL_Init(void){Clock_Init80MHz(0);}
 
@@ -100,19 +100,24 @@ Entity_t enemyBullets;
 
 uint8_t WARPCounter = 0;
 uint8_t coordCounter = 0;
+uint8_t switchDataOld = 0;
 uint8_t switchData;
 
 void TIMG12_IRQHandler(void){           //Game Engine
+
   if ((TIMG12->CPU_INT.IIDX) == 1){
       ADC_InDual(ADC1, &ADCX, &ADCY);   //Probes ADC
       setSpeed(&thePlayer);             //Sets Player speed based on ADC
       switchDataA = Switch_InA();       //Gets PA switch vals
       switchDataB = Switch_InB();       //Gets PB switch Vals
-      switchData = SwitchHandler(switchDataA, switchDataB, &thePlayer); //Handles switch press
+      switchData = SwitchHandler(switchDataA, switchDataB, &thePlayer, &playerBullet, &theEnemy); //Handles switch press
       if(GAMESTART){
-          if(switchData == 1) setPlayerBulletTrajectory(&thePlayer, &playerBullet); //Shoot bullet to bad guy
-          updateCoords(&thePlayer);   //Updates player coord at 15hz
-          updatePlayerBulletCoords(&playerBullet, &thePlayer);  //updates player bullet
+          updatePlayerBulletCoords(&playerBullet, &thePlayer, &theEnemy);  //updates player bullet
+          if(switchData == 1 && switchDataOld != 1) {
+              setPlayerBulletTrajectory(&thePlayer, &playerBullet, &theEnemy); //Shoot bullet to bad guy
+              switchDataOld = 1;
+          } else if(switchData == 0 && switchDataOld == 1) {switchDataOld = 0;}
+          updateCoords(&thePlayer);   //Updates player coord
           if(bulletHit) updateEnemyHP(&theEnemy);   //Updates enemy HP on hit
           WARPCounter++;                    //Warp timer++
           coordCounter++;                   //Coord timer++
@@ -173,6 +178,7 @@ void gameInit(){ // Flag inits
     ST7735_FillScreen(ST7735_BLACK);
       playerInit(&thePlayer, playerHPeasy);             // inits player
       enemyInit(&theEnemy, enemyHPeasy);               // inits enemy
+      bulletInit(&thePlayer, &playerBullet);
       UPDATE = 0;
       HPFLAG = 1;
       ENEMYUPDATE = 1;

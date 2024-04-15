@@ -29,7 +29,7 @@ extern uint8_t bulletLive;
 void graphicsHandler(Entity_t *thePlayer, Entity_t *theEnemy, Entity_t *playerBullet){
     if(PLAYERUPDATE || FIRSTUPDATE) drawPlayer(thePlayer);
     if(ENEMYUPDATE || bulletHit) drawEnemy(theEnemy);
-    if(bulletLive > 0) drawPlayerBullet(playerBullet);
+    if(playerBullet->live >= 1) drawPlayerBullet(playerBullet);
     if(lastClear) clearPlayerBullet();
     FIRSTUPDATE = 0;
 }
