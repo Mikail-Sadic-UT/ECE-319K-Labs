@@ -72,7 +72,6 @@ void bulletInit(Entity_t *thePlayer, Entity_t *Bullet){
 
 void updateCoords(Entity_t *Entity){    //Updates coord of entity
     if(Entity->w == 11) updatePlayerCoords(Entity);
-    if(Entity->w == 5) updateEnemyBulletCoords(Entity);
     if(Entity->w == 25) updateEnemyCoords(Entity);
 }
 
@@ -140,7 +139,7 @@ void updateEnemyCoords(Entity_t *Entity){   //this will MAYBE be implemented lat
     }
 }
 
-//sets trajectory of bullet dependent on player quadrant location
+//Sets bullet trajectory to enemy (it just works)
 void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Entity_t *theEnemy){
     playerBullet->live++;
     if(playerBullet->live == 1){
@@ -204,29 +203,6 @@ void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer, Entity_t *t
     }
 }
 
-void updateEnemyBulletCoords(Entity_t *Entity){ //WIP
-    int8_t spdX, spdY;
-    int16_t xOld, yOld, x, y;
-    spdX = Entity->spdX;
-    spdY = Entity->spdY;
-    if((spdX != 0) || (spdY != 0)){ //update detection
-        xOld = Entity->x;
-        yOld = Entity->y;
-
-        x = (xOld + spdX);
-        if(x > 160) x = 160;    //Out of bounds detection (this will need to delete the bullet eventually)
-        if(x < 4) x = 4;
-
-        y = (yOld + spdY);
-        if(y > 123) y = 123;    //Out of bounds detection (this will need to delete the bullet eventually)
-        if(y < 0) y = 0;
-
-        Entity->x = x;
-        Entity->y = y;
-    }
-}
-
-
 
 
 uint8_t COLLISIONFLAG;
@@ -263,9 +239,7 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
     y = thePlayer->y;
 
   if((A&RT) == RT){ //shoots bullet if avail
-      /*if(theBullet->live == 0 && GAMESTART){
-          theBullet->live = 1;
-      }*/
+
       return 1;
   }
   if((A&DWN) == DWN){   //Speed down

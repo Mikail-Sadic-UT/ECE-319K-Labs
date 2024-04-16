@@ -32,8 +32,6 @@ void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Enti
 
 void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer, Entity_t *theEnemy);    //WIP
 
-void updateEnemyBulletCoords(Entity_t *Entity);     //WIP
-
 void setHPLED(Entity_t *thePlayer);     //Sets HP LEDS based off player health
 
 void collisionCheck(Entity_t *Player, Entity_t *Enemy); //Checks collisions

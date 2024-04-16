@@ -61,6 +61,12 @@ void clearPlayerBullet(){       //clears last instance of bullet
     lastClear = 0;
 }
 
+uint8_t type; //need to implement so that there's different bullet colors
+void drawEnemyBullets(Entity_t *Bullets){
+    if(type == 1) ST7735_DrawBitmap(Bullets->y, Bullets->x, red_Bullet, 5, 5);
+    else if(type == 2) ST7735_DrawBitmap(Bullets->y, Bullets->x, blue_Bullet, 5, 5);
+}
+
 void drawLangScrn(){        //Language select screen
     ST7735_SetCursor(6, 1);
     ST7735_OutStringCool("Language", 2, ST7735_WHITE);

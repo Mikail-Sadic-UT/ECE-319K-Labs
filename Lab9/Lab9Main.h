@@ -7,4 +7,10 @@ void gameInit();
 
 void initInit();
 
+void PLL_Init(void);
+
+uint32_t Random32(void);
+
+uint32_t Random(uint32_t n);
+
 #endif

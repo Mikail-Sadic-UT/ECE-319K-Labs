@@ -1,3 +1,4 @@
+#include <enemyHandler.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <ti/devices/msp/msp.h>
@@ -32,11 +33,11 @@
 #define playerHPhard 3
 #define playerHPnohit 1
 
-#define enemyHPdemo 15
-#define enemyHPeasy 30
-#define enemyHPnormal 45
-#define enemyHPhard 60
-#define enemyHPnohit 75
+#define enemyHPdemo 30
+#define enemyHPeasy 60
+#define enemyHPnormal 75
+#define enemyHPhard 90
+#define enemyHPnohit 105
 
 extern uint8_t LANGMODE;
 extern uint32_t switchDataA;
@@ -119,6 +120,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         MAINMENU = 1;
         playerInit(thePlayer, playerHPdemo);             // inits player
         enemyInit(theEnemy, enemyHPdemo);               // inits enemy
+        phaseInit(enemyHPdemo);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
@@ -127,6 +129,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         MAINMENU = 1;
         playerInit(thePlayer, playerHPeasy);             // inits player
         enemyInit(theEnemy, enemyHPeasy);               // inits enemy
+        phaseInit(enemyHPeasy);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
@@ -135,6 +138,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         MAINMENU = 1;
         playerInit(thePlayer, playerHPnormal);             // inits player
         enemyInit(theEnemy, enemyHPnormal);               // inits enemy
+        phaseInit(enemyHPnormal);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
@@ -143,6 +147,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         MAINMENU = 1;
         playerInit(thePlayer, playerHPhard);             // inits player
         enemyInit(theEnemy, enemyHPhard);               // inits enemy
+        phaseInit(enemyHPhard);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
@@ -151,6 +156,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         MAINMENU = 1;
         playerInit(thePlayer, playerHPnohit);             // inits player
         enemyInit(theEnemy, enemyHPnohit);               // inits enemy
+        phaseInit(enemyHPnohit);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
