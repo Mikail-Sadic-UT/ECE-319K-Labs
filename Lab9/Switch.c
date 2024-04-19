@@ -18,7 +18,7 @@
 void Switch_Init(void){ //PA24, 25, 26, 27, PB16
     IOMUX->SECCFG.PINCM[PA24INDEX] = (uint32_t) 0x00050081; // input, pull down
     IOMUX->SECCFG.PINCM[PA25INDEX] = (uint32_t) 0x00050081; // input, pull down
-    IOMUX->SECCFG.PINCM[PA26INDEX] = (uint32_t) 0x00050081; // input, pull down     Double check pull-down is correct
+    IOMUX->SECCFG.PINCM[PA26INDEX] = (uint32_t) 0x00050081; // input, pull down
     IOMUX->SECCFG.PINCM[PA27INDEX] = (uint32_t) 0x00050081; // input, pull down
     IOMUX->SECCFG.PINCM[PB16INDEX] = (uint32_t) 0x00050081; // input, pull down
 }

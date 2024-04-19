@@ -40,11 +40,11 @@
 #define playerHPhard 3
 #define playerHPnohit 1
 
-#define enemyHPdemo 64
-#define enemyHPeasy 96
-#define enemyHPnormal 128
-#define enemyHPhard 192
-#define enemyHPnohit 255
+#define enemyHPdemo 42
+#define enemyHPeasy 64
+#define enemyHPnormal 96
+#define enemyHPhard 128
+#define enemyHPnohit 160
 
 #define playerBulletBuffer 8
 #define enemyBulletBuffer 64
@@ -101,7 +101,8 @@ uint8_t WARPCounter;
 uint8_t coordCounter = 0;
 uint8_t switchDataOld;
 uint8_t switchData;
-
+uint8_t bossHPcounter;
+uint8_t bossHPrefresh;
 
 
 void TIMG12_IRQHandler(void){           //Game Engine
@@ -126,7 +127,7 @@ void TIMG12_IRQHandler(void){           //Game Engine
           coordCounter++;                   //Coord timer++
           collisionCheck(&thePlayer, &theEnemy);    //Checks collision
           if(HPFLAG) setHPLED(&thePlayer);  //Sets HPLEDS based on player HP
-          if(WARPCounter > 210){            //WARP timer ~7sec
+          if(WARPCounter > 150){            //WARP timer ~7sec
               WARPCounter = 0;
               WARP = 1;
           }
@@ -134,6 +135,11 @@ void TIMG12_IRQHandler(void){           //Game Engine
           Phase_Switcher(&theEnemy);
           Phase_Handler();
           Pattern_Executer(&thePlayer, &theEnemy);
+          if(bossHPcounter > 5){
+              bossHPrefresh = 1;
+              bossHPcounter = 0;
+          }
+          bossHPcounter++;
       }
       //start sounds
       UPDATE = 1;                  //Update flag
@@ -153,6 +159,12 @@ int main(void) { // main
             if(GAMESTART){  //if game has started run this
                 graphicsHandler(&thePlayer, &theEnemy, &playerBullet);
                 drawEnemyBullets();
+                if(bossHPrefresh){
+                    drawIndicator();
+                    bossHPrefresh = 0;
+                    ST7735_SetCursor(1, 0);
+                    printf("%3.3i", theEnemy.hp);
+                }
             } else {    //else do menus
                 menuHandler(&thePlayer, &theEnemy);
             }
@@ -194,6 +206,8 @@ void gameInit(){ // Flag inits
       activate1 = 0;
       activate2 = 0;
       activate3 = 0;
+      bossHPcounter = 0;
+      bossHPrefresh = 0;
       for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
           bulletReset(&theEnemy, i);
       }
@@ -222,7 +236,7 @@ uint32_t Random(uint32_t n){
 }
 
 // use main4 to test sound outputs
-int main4(void)
+int main1(void)
 {
   uint32_t last = 0, now;
   __disable_irq();
@@ -235,16 +249,16 @@ int main4(void)
   __enable_irq();
   while (1)
   {
-    now = Switch_In(); // one of your buttons
-    if ((last == 0) && (now == 1))
+    now = Switch_InA(); // one of your buttons
+    if ((last == 0) && (now == UP))
     {
-      Sound_Shoot(); // call one of your sounds
+      Sound_Crash(); // call one of your sounds
     }
-    if ((last == 0) && (now == 2))
+    if ((last == 0) && (now == LFT))
     {
-      Sound_Killed(); // call one of your sounds
+      Sound_Warp(); // call one of your sounds
     }
-    if ((last == 0) && (now == 4))
+    if ((last == 0) && (now == RT))
     {
       Sound_Explosion(); // call one of your sounds
     }

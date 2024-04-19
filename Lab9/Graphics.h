@@ -13,6 +13,8 @@ void clearPlayerBullet();   //clears last instance of player bullet
 
 void drawEnemyBullets();
 
+void drawIndicator();
+
 void drawLangScrn();
 
 void drawEngOpt();

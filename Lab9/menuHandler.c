@@ -33,11 +33,11 @@
 #define playerHPhard 3
 #define playerHPnohit 1
 
-#define enemyHPdemo 64
-#define enemyHPeasy 96
-#define enemyHPnormal 128
-#define enemyHPhard 192
-#define enemyHPnohit 255
+#define enemyHPdemo 42
+#define enemyHPeasy 64
+#define enemyHPnormal 96
+#define enemyHPhard 128
+#define enemyHPnohit 160
 
 extern uint8_t LANGMODE;
 extern uint32_t switchDataA;

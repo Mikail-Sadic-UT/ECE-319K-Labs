@@ -243,10 +243,10 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
 
       return 1;
   }
-  if((A&DWN) == DWN){   //Speed down
-      spdX = spdX >> 1;
+  if((A&DWN) == DWN){   //Speed up
+      spdX = spdX << 1;
       if(spdX < 0) spdX++;
-      spdY = spdY >> 1;
+      spdY = spdY << 1;
       if(spdY < 0) spdY++;
       thePlayer->spdX = spdX;
       thePlayer->spdY = spdY;
@@ -254,11 +254,11 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
   }
   if((A&LFT) == LFT){   //will warp if warp avail and in bounds
     if(WARP){
-        x += (spdX<<3);
+        x += (spdX<<4);
         if(x > 180) x = 180;
         if(x < 0) x = 0;
 
-        y += (spdY<<3);
+        y += (spdY<<4);
         if(y > 128) y = 128;
         if(y < 0) y = 0;
 

@@ -24,6 +24,7 @@ extern uint8_t PLAYERUPDATE;
 extern uint8_t ENEMYUPDATE;
 extern uint8_t FIRSTUPDATE;
 extern uint8_t bulletHit;
+extern uint8_t WARP;
 
 extern Entity_t enemyBullets[];
 
@@ -61,6 +62,11 @@ void drawPlayerBullet(Entity_t *Bullet){        //draw bullet
 void clearPlayerBullet(){       //clears last instance of bullet
     ST7735_DrawBitmap(PByOld, PBxOld, player_BulletOld, 2, 2);
     lastClear = 0;
+}
+
+void drawIndicator(){
+    if(WARP) ST7735_DrawBitmap(1, 6, indicatorgreen, 5, 5);
+    else ST7735_DrawBitmap(1, 6, indicator, 5, 5);
 }
 
 #define enemyBulletBuffer 64
@@ -261,9 +267,9 @@ void controlsEng(){
     ST7735_SetCursor(5, 3);
     ST7735_OutStringCool("Shoot - Auto aim", 1, ST7735_WHITE);
     ST7735_SetCursor(5, 5);
-    ST7735_OutStringCool("Speed shift - Slow", 1, ST7735_WHITE);
+    ST7735_OutStringCool("Speed shift - Fast", 1, ST7735_WHITE);
     ST7735_SetCursor(5, 7);
-    ST7735_OutStringCool("Warp - Teleport ~7sec", 1, ST7735_WHITE);
+    ST7735_OutStringCool("Warp - Teleport ~5sec", 1, ST7735_WHITE);
     ST7735_SetCursor(5, 9);
     ST7735_OutStringCool("Pause - Pause game", 1, ST7735_WHITE);
     ST7735_SetCursor(4, 11);
@@ -282,9 +288,9 @@ void controlsBH(){
     ST7735_SetCursor(5, 3);
     ST7735_OutStringCool("Pucaj - Auto aim", 1, ST7735_WHITE);
     ST7735_SetCursor(5, 5);
-    ST7735_OutStringCool("Mjen brzine - Sporije", 1, ST7735_WHITE);
+    ST7735_OutStringCool("Mjen brzine - Birze", 1, ST7735_WHITE);
     ST7735_SetCursor(5, 7);
-    ST7735_OutStringCool("Warp - Teleport ~7sec", 1, ST7735_WHITE);
+    ST7735_OutStringCool("Warp - Teleport ~5sec", 1, ST7735_WHITE);
     ST7735_SetCursor(5, 9);
     ST7735_OutStringCool("Pauza - Zaustavi igru", 1, ST7735_WHITE);
     ST7735_SetCursor(4, 11);

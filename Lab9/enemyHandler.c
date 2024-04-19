@@ -110,13 +110,13 @@ void Phase_Handler(){
         activate3 = 1;
         bulletTimer1 = 10;
         bulletTimer2 = 45;
-        bulletTimer3 = 90;
+        bulletTimer3 = 75;
     }
     else if(PHASE == 5){
         activate1 = 0;
         activate2 = 0;
         activate3 = 1;
-        bulletTimer3 = 30;
+        bulletTimer3 = 15;
     }
 }
 
@@ -126,9 +126,9 @@ void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){
     uint8_t x1, x2, x3;
     if(PHASE == 0) x1 = 2;
     else if(PHASE == 1) x1 = 2, x2 = 1;
-    else if(PHASE == 2) x1 = 3, x2 = 2;
+    else if(PHASE == 2) x1 = 2, x2 = 2;
     else if(PHASE == 3) x1 = 3, x2 = 2;
-    else if(PHASE == 4) x1 = 3, x2 = 2;
+    else if(PHASE == 4) x1 = 3, x2 = 3;
 
     if(pattern1){ //shoot 1 bullet at player
         pattern1 = 0;
@@ -281,6 +281,8 @@ void bulletReset(Entity_t *theEnemy, uint8_t i){
     enemyBullets[i].y = theEnemy->y + 10;
     enemyBullets[i].xOld = theEnemy->x - 10;
     enemyBullets[i].yOld = theEnemy->y + 10;
+    enemyBullets[i].spdX = 0;
+    enemyBullets[i].spdY = 0;
     enemyBullets[i].live = 0;
     enemyBullets[i].lastClear = 0;
     type++;

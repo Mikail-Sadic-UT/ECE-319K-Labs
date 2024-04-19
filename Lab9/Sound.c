@@ -47,11 +47,12 @@ void Sound_Start(const uint8_t *pt, uint32_t count){
     SysTick->LOAD = (count - 1);
     SysTick->VAL = 0;
 }
+
 void Sound_Warp(void){
 // write this
   
 }
-void Sound_Killed(void){
+void Sound_Crash(void){
 // write this
   
 }
@@ -59,9 +60,6 @@ void Sound_Explosion(void){
 // write this
  
 }
-void Sound_Shoot(void){
-// write this
-  
-}
+
 
 
