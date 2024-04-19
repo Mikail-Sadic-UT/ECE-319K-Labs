@@ -33,11 +33,11 @@
 #define playerHPhard 3
 #define playerHPnohit 1
 
-#define enemyHPdemo 30
-#define enemyHPeasy 60
-#define enemyHPnormal 75
-#define enemyHPhard 90
-#define enemyHPnohit 105
+#define enemyHPdemo 64
+#define enemyHPeasy 96
+#define enemyHPnormal 128
+#define enemyHPhard 192
+#define enemyHPnohit 255
 
 extern uint8_t LANGMODE;
 extern uint32_t switchDataA;
@@ -67,14 +67,14 @@ void langSelect(){
     if((switchDataA&UP) == UP){
         LANGMODE = 1; //ENG
         LANGSELECT = 0;
-        MAINMENU = 1;
+        CONTROLS = 1;
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
     if((switchDataA&DWN) == DWN){
         LANGMODE = 2; //BH
         LANGSELECT = 0;
-        MAINMENU = 1;
+        CONTROLS = 1;
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }

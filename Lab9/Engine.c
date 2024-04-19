@@ -162,6 +162,7 @@ void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Enti
         spdX = dx/b;
         spdY = dy/b;
         spdY = spdY*-1;
+
         playerBullet->spdX = spdX;
         playerBullet->spdY = spdY;
 

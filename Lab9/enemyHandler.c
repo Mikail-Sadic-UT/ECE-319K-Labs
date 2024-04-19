@@ -23,6 +23,10 @@ uint8_t phase0, phase1, phase2, phase3, phase4, phase5;
 uint8_t activate1, activate2, activate3;
 uint8_t pattern1, pattern2, pattern3;
 uint8_t PHASE;
+extern uint8_t HPFLAG;
+
+#define enemyBulletBuffer 64
+Entity_t enemyBullets[enemyBulletBuffer];
 
 void phaseTimer(){
     bulletCounter1++;
@@ -83,29 +87,29 @@ void Phase_Handler(){
         activate2 = 1;
         activate3 = 0;
         bulletTimer1 = 25;
-        bulletTimer2 = 120;
+        bulletTimer2 = 90;
     }
     else if(PHASE == 2){
         activate1 = 1;
         activate2 = 1;
         activate3 = 0;
         bulletTimer1 = 20;
-        bulletTimer2 = 90;
+        bulletTimer2 = 60;
     }
     else if(PHASE == 3){
         activate1 = 1;
         activate2 = 1;
         activate3 = 1;
-        bulletTimer1 = 20;
-        bulletTimer2 = 90;
+        bulletTimer1 = 15;
+        bulletTimer2 = 60;
         bulletTimer3 = 120;
     }
     else if(PHASE == 4){
         activate1 = 1;
         activate2 = 1;
         activate3 = 1;
-        bulletTimer1 = 15;
-        bulletTimer2 = 60;
+        bulletTimer1 = 10;
+        bulletTimer2 = 45;
         bulletTimer3 = 90;
     }
     else if(PHASE == 5){
@@ -116,32 +120,101 @@ void Phase_Handler(){
     }
 }
 
-void Pattern_Executer(){
-    if(pattern1){
-        //shoot 1 bullet at player
+uint8_t curBullet;
+
+void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){
+    uint8_t x1, x2, x3;
+    if(PHASE == 0) x1 = 2;
+    else if(PHASE == 1) x1 = 2, x2 = 1;
+    else if(PHASE == 2) x1 = 3, x2 = 2;
+    else if(PHASE == 3) x1 = 3, x2 = 2;
+    else if(PHASE == 4) x1 = 3, x2 = 2;
+
+    if(pattern1){ //shoot 1 bullet at player
         pattern1 = 0;
+        curBullet++;
+        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 0, 0, x1);
+        if(curBullet > enemyBulletBuffer) curBullet = 0;
     }
-    if(pattern2){
-        //shoot burst at player
+    if(pattern2){ //shoot burst at player
         pattern2 = 0;
+        curBullet++;
+        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, -2, 2, x2);
+        curBullet++;
+        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 0, 0, x2);       //this is hopefully like a spray
+        curBullet++;
+        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 2, -2, x2);
+        if(curBullet > enemyBulletBuffer) curBullet = 0;
     }
     if(pattern3){
-        //shoot in circle
+        circleTrajectory();
         pattern3 = 0;
     }
 }
 
-/*
+void circleTrajectory(){
+    int8_t y = -4;
+
+    for(int8_t x = 0; x < 4; x++){
+        curBullet++;
+        if(curBullet > enemyBulletBuffer) curBullet = 0;
+        enemyBullets[curBullet].live = 2;
+        enemyBullets[curBullet].spdX = x;
+        enemyBullets[curBullet].spdY = y;
+        y++;
+    }
+
+    y = -4;
+    for(int8_t x = 0; x < 4; x++){
+        curBullet++;
+        if(curBullet > enemyBulletBuffer) curBullet = 0;
+        if(x != 0){
+            enemyBullets[curBullet].live = 2;
+            enemyBullets[curBullet].spdX = (x*-1);
+            enemyBullets[curBullet].spdY = (y*-1);
+        }
+        y++;
+    }
+
+    y = 4;
+    for(int8_t x = 0; x < 4; x++){
+        curBullet++;
+        if(curBullet > enemyBulletBuffer) curBullet = 0;
+        enemyBullets[curBullet].live = 2;
+        enemyBullets[curBullet].spdX = x;
+        enemyBullets[curBullet].spdY = y;
+        y--;
+    }
+
+    y = 4;
+    for(int8_t x = 0; x < 4; x++){
+        curBullet++;
+        if(curBullet > enemyBulletBuffer) curBullet = 0;
+        enemyBullets[curBullet].live = 2;
+        enemyBullets[curBullet].spdX = (y*-1);
+        enemyBullets[curBullet].spdY = (x*-1);
+        y--;
+    }
+
+    curBullet++;
+    if(curBullet > enemyBulletBuffer) curBullet = 0;
+    enemyBullets[curBullet].live = 2;
+    enemyBullets[curBullet].spdX = 4;
+    enemyBullets[curBullet].spdY = 0;
+
+}
+
 //Sets bullet trajectory to enemy (it just works)
-void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Entity_t *theEnemy){
-    playerBullet->live++;
-    if(playerBullet->live == 1){
+void setEnemyBulletTrajectory(Entity_t *thePlayer, Entity_t *theEnemy, uint8_t i, int8_t Xoff, int8_t Yoff, uint8_t x){
+    enemyBullets[i].live++;
+    if(enemyBullets[i].live == 1){
         uint8_t Px = thePlayer->x - 6;
         uint8_t Py = thePlayer->y + 6;
         uint8_t Ex = theEnemy->x - 13;
         uint8_t Ey = theEnemy->y + 13;
         int16_t dx, dy, n1, n2, b;
         int8_t spdX, spdY;
+
 
         dx = Ex - Px;
         dy = Py - Ey;
@@ -150,72 +223,68 @@ void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Enti
         n2 = dy;
         if(n2 < 0) n2*=-1;
         b = n1 + n2;
-        dx = dx<<3;
-        dy = dy<<3;
+        dx = dx<<x;
+        dy = dy<<x;
         spdX = dx/b;
         spdY = dy/b;
-        spdY = spdY*-1;
-        playerBullet->spdX = spdX;
-        playerBullet->spdY = spdY;
 
-        playerBullet->live = 2;
+
+        spdX = spdX*-1; //x inversion
+
+        enemyBullets[i].spdX = spdX + Xoff;
+        enemyBullets[i].spdY = spdY + Yoff;
+
+        enemyBullets[i].live = 2;
     }
 }
 
-void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer, Entity_t *theEnemy){
+
+
+void updateEnemyBulletCoords(Entity_t *thePlayer, Entity_t *theEnemy, uint8_t i){
     int8_t spdX, spdY;
     int16_t xOld, yOld, x, y;
-    if(Bullet->live == 0){                //bullet originates from player
-        Bullet->x = thePlayer->x - 5;
-        Bullet->y = thePlayer->y + 5;
-        bulletHit = 0;
-    } else if(Bullet->live >= 1) {        //bullet will go
-        spdX = Bullet->spdX;
-        spdY = Bullet->spdY;
+    if(enemyBullets[i].live == 0){                //bullet originates from enemy
+        enemyBullets[i].x = theEnemy->x - 10;
+        enemyBullets[i].y = theEnemy->y + 10;
+    } else if(enemyBullets[i].live >= 1) {        //bullet will go
+        spdX = enemyBullets[i].spdX;
+        spdY = enemyBullets[i].spdY;
 
-        xOld = Bullet->x;
-        yOld = Bullet->y;
+        xOld = enemyBullets[i].x;
+        yOld = enemyBullets[i].y;
 
         x = (xOld + spdX);
         y = (yOld + spdY);
 
-        if((x < (theEnemy->x) && x > (theEnemy->x - 23)) && (y < (theEnemy->y + 23) && y > (theEnemy->y))){
-            bulletHit = 1;
-            bulletInit(thePlayer, Bullet);
-            lastClear = 1;
-            score++;
+        if((x < (thePlayer->x + 3) && x > (thePlayer->x - 9)) && (y < (thePlayer->y + 9) && y > (thePlayer->y - 3))){
+            HPFLAG = 1;
+            thePlayer->hp = thePlayer->hp - 1;
+            enemyBullets[i].xHit = enemyBullets[i].x;
+            enemyBullets[i].yHit = enemyBullets[i].y;
+            bulletReset(theEnemy, i);
+            enemyBullets[i].lastClear = 1;
         } else if((x > 160 || x < 0) || (y > 128 || y < 0)){    //bullet hit wall?
-            bulletInit(thePlayer, Bullet);
-            bulletHit = 0;
-            lastClear = 1;
+            enemyBullets[i].xHit = enemyBullets[i].x;
+            enemyBullets[i].yHit = enemyBullets[i].y;
+            bulletReset(theEnemy, i);
+            enemyBullets[i].lastClear = 1;
         } else {
-            Bullet->x = x;      //bullet keep go
-            Bullet->y = y;
-            bulletHit = 0;
+            enemyBullets[i].x = x;      //bullet keep go
+            enemyBullets[i].y = y;
         }
     }
 }
-*/
 
-/*
-Phase_Handler(){    Need to figure out how this would actually be implemented, FSM maybe?
-  if(PHASE == 0){
-    Shoot Bullets slowly at player
-  }
-  if(PHASE == 1){
-    Shoot bullets a bit faster, and add a spray
-  }
-  if(PHASE == 2){
-    //TBD
-  }
-  if(PHASE == 3){
-    //TBD
-  }
-  if(PHASE == 4){
-    Goto center and start spamming
-  }
-  if(PHASE == 5){
-    Goto center and just explode in a bunch of bullets
-  }
+uint8_t type = 1;
+void bulletReset(Entity_t *theEnemy, uint8_t i){
+    enemyBullets[i].x = theEnemy->x - 10;
+    enemyBullets[i].y = theEnemy->y + 10;
+    enemyBullets[i].xOld = theEnemy->x - 10;
+    enemyBullets[i].yOld = theEnemy->y + 10;
+    enemyBullets[i].live = 0;
+    enemyBullets[i].lastClear = 0;
+    type++;
+    if(type > 2) type = 1;
+    enemyBullets[i].type = type;
+
 }
-*/

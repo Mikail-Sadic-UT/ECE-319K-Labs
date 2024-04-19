@@ -10,6 +10,10 @@ struct Entity
   int8_t spdX;
   int8_t spdY;
   uint8_t live; //for bullets if live
+  uint8_t type;
+  uint8_t xOld, yOld;
+  uint8_t lastClear;
+  uint8_t xHit, yHit;
 };
 typedef struct Entity Entity_t;
 

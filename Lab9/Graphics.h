@@ -11,6 +11,8 @@ void drawPlayerBullet(Entity_t *Bullet);    //Draws player bullet
 
 void clearPlayerBullet();   //clears last instance of player bullet
 
+void drawEnemyBullets();
+
 void drawLangScrn();
 
 void drawEngOpt();

@@ -25,9 +25,11 @@ extern uint8_t ENEMYUPDATE;
 extern uint8_t FIRSTUPDATE;
 extern uint8_t bulletHit;
 
+extern Entity_t enemyBullets[];
+
 void graphicsHandler(Entity_t *thePlayer, Entity_t *theEnemy, Entity_t *playerBullet){
-    if(PLAYERUPDATE || FIRSTUPDATE) drawPlayer(thePlayer);
-    if(ENEMYUPDATE || bulletHit) drawEnemy(theEnemy);
+    drawPlayer(thePlayer);
+    drawEnemy(theEnemy);
     if(playerBullet->live >= 1) drawPlayerBullet(playerBullet);
     if(lastClear) clearPlayerBullet();
     FIRSTUPDATE = 0;
@@ -61,10 +63,20 @@ void clearPlayerBullet(){       //clears last instance of bullet
     lastClear = 0;
 }
 
-uint8_t type; //need to implement so that there's different bullet colors
-void drawEnemyBullets(Entity_t *Bullets){
-    if(type == 1) ST7735_DrawBitmap(Bullets->y, Bullets->x, red_Bullet, 5, 5);
-    else if(type == 2) ST7735_DrawBitmap(Bullets->y, Bullets->x, blue_Bullet, 5, 5);
+#define enemyBulletBuffer 64
+void drawEnemyBullets(){
+    for(uint8_t i = 0; i < enemyBulletBuffer; i++){
+        if(enemyBullets[i].live >= 1){
+            ST7735_DrawBitmap(enemyBullets[i].yOld, enemyBullets[i].xOld, enemy_BulletOld, 5, 5);
+            if(enemyBullets[i].type == 1) ST7735_DrawBitmap(enemyBullets[i].y, enemyBullets[i].x, red_Bullet, 5, 5);
+            else if(enemyBullets[i].type  == 2) ST7735_DrawBitmap(enemyBullets[i].y, enemyBullets[i].x, blue_Bullet, 5, 5);
+            enemyBullets[i].xOld = enemyBullets[i].x;
+            enemyBullets[i].yOld = enemyBullets[i].y;
+        } else if(enemyBullets[i].lastClear == 1){
+            ST7735_DrawBitmap(enemyBullets[i].yHit, enemyBullets[i].xHit, enemy_BulletOld, 5, 5);
+            enemyBullets[i].lastClear = 0;
+        }
+    }
 }
 
 void drawLangScrn(){        //Language select screen
@@ -96,6 +108,10 @@ void drawEngOpt(){
     ST7735_OutStringCool("Hard      3    high", 1, ST7735_WHITE);
     ST7735_SetCursor(4, 9);
     ST7735_OutStringCool("No-Hit    1    most", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 11);
+    ST7735_OutStringCool("Press any button to", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 12);
+    ST7735_OutStringCool("      return", 1, ST7735_WHITE);
 
     ST7735_DrawBitmap(35, 155, iconup, 11, 11);
     ST7735_DrawBitmap(47, 155, iconrt, 11, 11);
@@ -119,6 +135,10 @@ void drawBHOpt(){
         ST7735_OutStringCool("Tesko     3    puno", 1, ST7735_WHITE);
         ST7735_SetCursor(4, 9);
         ST7735_OutStringCool("Bez-Udar  1    vise", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 11);
+        ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
+        ST7735_SetCursor(4, 12);
+        ST7735_OutStringCool("     se vratis     ", 1, ST7735_WHITE);
 
         ST7735_DrawBitmap(35, 155, iconup, 11, 11);
         ST7735_DrawBitmap(47, 155, iconrt, 11, 11);
@@ -238,35 +258,43 @@ void answersBH(){
 void controlsEng(){
     ST7735_SetCursor(6, 1);
     ST7735_OutStringCool("Controls", 2, ST7735_WHITE);
-    ST7735_SetCursor(5, 4);
+    ST7735_SetCursor(5, 3);
     ST7735_OutStringCool("Shoot - Auto aim", 1, ST7735_WHITE);
-    ST7735_SetCursor(5, 6);
+    ST7735_SetCursor(5, 5);
     ST7735_OutStringCool("Speed shift - Slow", 1, ST7735_WHITE);
-    ST7735_SetCursor(5, 8);
+    ST7735_SetCursor(5, 7);
     ST7735_OutStringCool("Warp - Teleport ~7sec", 1, ST7735_WHITE);
-    ST7735_SetCursor(5, 10);
+    ST7735_SetCursor(5, 9);
     ST7735_OutStringCool("Pause - Pause game", 1, ST7735_WHITE);
-    ST7735_DrawBitmap(37, 151, iconrt, 11, 11);
-    ST7735_DrawBitmap(57, 151, icondwn, 11, 11);
-    ST7735_DrawBitmap(77, 151, iconlft, 11, 11);
-    ST7735_DrawBitmap(97, 151, iconup, 11, 11);
+    ST7735_SetCursor(4, 11);
+    ST7735_OutStringCool("Press any button to", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 12);
+    ST7735_OutStringCool("     continue", 1, ST7735_WHITE);
+    ST7735_DrawBitmap(27, 151, iconrt, 11, 11);
+    ST7735_DrawBitmap(47, 151, icondwn, 11, 11);
+    ST7735_DrawBitmap(67, 151, iconlft, 11, 11);
+    ST7735_DrawBitmap(87, 151, iconup, 11, 11);
 }
 
 void controlsBH(){
     ST7735_SetCursor(6, 1);
     ST7735_OutStringCool("Kontrole", 2, ST7735_WHITE);
-    ST7735_SetCursor(5, 4);
+    ST7735_SetCursor(5, 3);
     ST7735_OutStringCool("Pucaj - Auto aim", 1, ST7735_WHITE);
-    ST7735_SetCursor(5, 6);
+    ST7735_SetCursor(5, 5);
     ST7735_OutStringCool("Mjen brzine - Sporije", 1, ST7735_WHITE);
-    ST7735_SetCursor(5, 8);
+    ST7735_SetCursor(5, 7);
     ST7735_OutStringCool("Warp - Teleport ~7sec", 1, ST7735_WHITE);
-    ST7735_SetCursor(5, 10);
+    ST7735_SetCursor(5, 9);
     ST7735_OutStringCool("Pauza - Zaustavi igru", 1, ST7735_WHITE);
-    ST7735_DrawBitmap(37, 151, iconrt, 11, 11);
-    ST7735_DrawBitmap(57, 151, icondwn, 11, 11);
-    ST7735_DrawBitmap(77, 151, iconlft, 11, 11);
-    ST7735_DrawBitmap(97, 151, iconup, 11, 11);
+    ST7735_SetCursor(4, 11);
+    ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 12);
+    ST7735_OutStringCool("     nastavis     ", 1, ST7735_WHITE);
+    ST7735_DrawBitmap(27, 151, iconrt, 11, 11);
+    ST7735_DrawBitmap(47, 151, icondwn, 11, 11);
+    ST7735_DrawBitmap(67, 151, iconlft, 11, 11);
+    ST7735_DrawBitmap(87, 151, iconup, 11, 11);
 }
 
 void loreEng(){

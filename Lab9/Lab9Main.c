@@ -40,11 +40,11 @@
 #define playerHPhard 3
 #define playerHPnohit 1
 
-#define enemyHPdemo 30
-#define enemyHPeasy 60
-#define enemyHPnormal 75
-#define enemyHPhard 90
-#define enemyHPnohit 105
+#define enemyHPdemo 64
+#define enemyHPeasy 96
+#define enemyHPnormal 128
+#define enemyHPhard 192
+#define enemyHPnohit 255
 
 #define playerBulletBuffer 8
 #define enemyBulletBuffer 64
@@ -95,9 +95,7 @@ Entity_t theEnemy;
 
 Entity_t playerBullet;
 
-Entity_t enemyBullets[enemyBulletBuffer];
-
-
+extern Entity_t enemyBullets[];
 
 uint8_t WARPCounter;
 uint8_t coordCounter = 0;
@@ -115,6 +113,9 @@ void TIMG12_IRQHandler(void){           //Game Engine
       switchData = SwitchHandler(switchDataA, switchDataB, &thePlayer, &playerBullet, &theEnemy); //Handles switch press
       if(GAMESTART){
           updatePlayerBulletCoords(&playerBullet, &thePlayer, &theEnemy);  //updates player bullet
+          for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
+              if(enemyBullets[i].live) updateEnemyBulletCoords(&thePlayer, &theEnemy, i);
+          }
           if(switchData == 1 && switchDataOld != 1) {
               setPlayerBulletTrajectory(&thePlayer, &playerBullet, &theEnemy); //Shoot bullet to bad guy
               switchDataOld = 1;
@@ -132,6 +133,7 @@ void TIMG12_IRQHandler(void){           //Game Engine
           phaseTimer();
           Phase_Switcher(&theEnemy);
           Phase_Handler();
+          Pattern_Executer(&thePlayer, &theEnemy);
       }
       //start sounds
       UPDATE = 1;                  //Update flag
@@ -150,6 +152,7 @@ int main(void) { // main
         if (UPDATE) {   //30hz
             if(GAMESTART){  //if game has started run this
                 graphicsHandler(&thePlayer, &theEnemy, &playerBullet);
+                drawEnemyBullets();
             } else {    //else do menus
                 menuHandler(&thePlayer, &theEnemy);
             }
@@ -191,6 +194,9 @@ void gameInit(){ // Flag inits
       activate1 = 0;
       activate2 = 0;
       activate3 = 0;
+      for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
+          bulletReset(&theEnemy, i);
+      }
 }
 
 uint8_t TExaS_LaunchPadLogicPB27PB26(void) {return (0x80 | ((GPIOB->DOUT31_0 >> 26) & 0x03));}
