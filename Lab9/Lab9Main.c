@@ -41,10 +41,10 @@
 #define playerHPnohit 1
 
 #define enemyHPdemo 42
-#define enemyHPeasy 64
-#define enemyHPnormal 96
-#define enemyHPhard 128
-#define enemyHPnohit 160
+#define enemyHPeasy 67
+#define enemyHPnormal 77
+#define enemyHPhard 87
+#define enemyHPnohit 97
 
 #define playerBulletBuffer 8
 #define enemyBulletBuffer 64
@@ -76,11 +76,15 @@ uint8_t LANGSELECT;
 uint8_t LANGMODE;
 uint8_t OPTIONSELECT;
 uint8_t MAINMENU;
-uint16_t score;
+uint8_t INFO;
+uint8_t score;
 uint8_t FIRSTUPDATE;
 uint8_t CONTROLS;
 uint8_t LORE;
 uint8_t LOREUPDATE;
+uint8_t PAUSED;
+uint8_t UNPAUSED;
+int8_t pauseCount;
 
 extern uint8_t bulletCounter1, bulletCounter2, bulletCounter3;
 extern uint8_t bulletTimer1, bulletTimer2, bulletTimer3;
@@ -112,14 +116,22 @@ void TIMG12_IRQHandler(void){           //Game Engine
       switchDataA = Switch_InA();       //Gets PA switch vals
       switchDataB = Switch_InB();       //Gets PB switch Vals
       switchData = SwitchHandler(switchDataA, switchDataB, &thePlayer, &playerBullet, &theEnemy); //Handles switch press
-      if(GAMESTART){
+      if(GAMESTART && switchData == 4 && switchDataOld != 4 && pauseCount > 0){
+          UNPAUSED = 1;
+          switchDataOld = 4;
+          if(PAUSED) {                                   //Pause handler
+              PAUSED = 0;
+              pauseCount--;
+          } else PAUSED = 1;
+      }
+      if(GAMESTART && !PAUSED){     //Run game
           updatePlayerBulletCoords(&playerBullet, &thePlayer, &theEnemy);  //updates player bullet
           for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
-              if(enemyBullets[i].live) updateEnemyBulletCoords(&thePlayer, &theEnemy, i);
+              if(enemyBullets[i].live) updateEnemyBulletCoords(&thePlayer, &theEnemy, i);   //update enemy bullet coords
           }
-          if(switchData == 1 && switchDataOld != 1) {
+          if(switchData == 1) { // && switchDataOld != 1   <--- for button mash
               setPlayerBulletTrajectory(&thePlayer, &playerBullet, &theEnemy); //Shoot bullet to bad guy
-              switchDataOld = 1;
+              //switchDataOld = 1;    <--- for button mash
           } else if(switchData == 0 && switchDataOld == 1) {switchDataOld = 0;}
           updateCoords(&thePlayer);   //Updates player coord
           if(bulletHit) updateEnemyHP(&theEnemy);   //Updates enemy HP on hit
@@ -131,16 +143,17 @@ void TIMG12_IRQHandler(void){           //Game Engine
               WARPCounter = 0;
               WARP = 1;
           }
-          phaseTimer();
-          Phase_Switcher(&theEnemy);
-          Phase_Handler();
-          Pattern_Executer(&thePlayer, &theEnemy);
+          phaseTimer();     //Attack pattern clocks
+          Phase_Switcher(&theEnemy);    //Switched phase based off HP
+          Phase_Handler();      //Sets timers and activates patterns
+          Pattern_Executer(&thePlayer, &theEnemy);  //executes pattern
           if(bossHPcounter > 5){
-              bossHPrefresh = 1;
+              bossHPrefresh = 1;    //refreshes bossHP indicator and warp indicator at ~5hz
               bossHPcounter = 0;
           }
           bossHPcounter++;
       }
+      switchDataOld = switchData;
       //start sounds
       UPDATE = 1;                  //Update flag
   }
@@ -152,25 +165,34 @@ int main(void) { // main
     LaunchPad_Init();
     TimerG12_IntArm(80000000 / 30, 3);                // initialize interrupts on TimerG12 at 30 Hz
     __enable_irq();
-    initInit();
+    initInit();                                       // hardware inits
     gameInit();                                       // data structure inits
     while (1) {
         if (UPDATE) {   //30hz
-            if(GAMESTART){  //if game has started run this
-                graphicsHandler(&thePlayer, &theEnemy, &playerBullet);
-                drawEnemyBullets();
+            if(GAMESTART && !PAUSED){  //if game has started run this
+                if(UNPAUSED){
+                    ST7735_SetCursor(8, 2);
+                    ST7735_OutStringCool("      ", 2, ST7735_WHITE);    //Clears pause menu
+                    ST7735_SetCursor(7, 9);
+                    ST7735_OutStringCool("              ", 1, ST7735_WHITE);
+                    UNPAUSED = 0;
+                }
+                graphicsHandler(&thePlayer, &theEnemy, &playerBullet);  //handles most graphics
+                drawEnemyBullets();     //handles enemy bullet graphics
                 if(bossHPrefresh){
                     drawIndicator();
-                    bossHPrefresh = 0;
+                    bossHPrefresh = 0;      //draws boss HP indicator and warp indicator
                     ST7735_SetCursor(1, 0);
                     printf("%3.3i", theEnemy.hp);
                 }
+            } else if(GAMESTART && PAUSED){
+                pauseHandler(pauseCount);   //handles pause menu
             } else {    //else do menus
-                menuHandler(&thePlayer, &theEnemy);
+                menuHandler(&thePlayer, &theEnemy); //handles menus
             }
-            UPDATE = 0;
+            UPDATE = 0; //flag reset
         }
-        while(GAMEOVER) gameEndHandler();
+        while(GAMEOVER) gameEndHandler();   //game end handlers
         while(WIN) winHandler();
     }
 }
@@ -181,6 +203,7 @@ void gameInit(){ // Flag inits
       enemyInit(&theEnemy, enemyHPeasy);               // inits enemy
       bulletInit(&thePlayer, &playerBullet);
       phaseInit(enemyHPeasy);
+      setHPLED(&thePlayer);
       UPDATE = 0;
       HPFLAG = 1;
       ENEMYUPDATE = 1;
@@ -208,6 +231,10 @@ void gameInit(){ // Flag inits
       activate3 = 0;
       bossHPcounter = 0;
       bossHPrefresh = 0;
+      PAUSED = 0;
+      UNPAUSED = 0;
+      INFO = 0;
+      pauseCount = 3;
       for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
           bulletReset(&theEnemy, i);
       }

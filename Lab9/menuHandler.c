@@ -34,20 +34,21 @@
 #define playerHPnohit 1
 
 #define enemyHPdemo 42
-#define enemyHPeasy 64
-#define enemyHPnormal 96
-#define enemyHPhard 128
-#define enemyHPnohit 160
+#define enemyHPeasy 67
+#define enemyHPnormal 77
+#define enemyHPhard 87
+#define enemyHPnohit 97
 
 extern uint8_t LANGMODE;
 extern uint32_t switchDataA;
 extern uint32_t switchDataB;
 extern uint8_t OPTIONSELECT;
 extern uint8_t MAINMENU;
-extern uint16_t score;
+extern uint8_t score;
 extern uint8_t FIRSTUPDATE;
 extern uint8_t CONTROLS;
 extern uint8_t LORE;
+extern uint8_t INFO;
 extern uint8_t LOREUPDATE;
 extern uint8_t LANGSELECT;
 extern uint8_t GAMESTART;
@@ -60,6 +61,23 @@ void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){
     if(OPTIONSELECT) Options(thePlayer, theEnemy);
     if(CONTROLS) controls();
     if(LORE) lore();
+    if(INFO) info();
+}
+
+void pauseHandler(int8_t pauseCount){
+    ST7735_SetCursor(8, 2);
+    if(LANGMODE == 1) ST7735_OutStringCool("PAUSED", 2, ST7735_WHITE);
+    if(LANGMODE == 2) {
+        ST7735_SetCursor(2, 2);
+        ST7735_OutStringCool("ZAUSTAVLJENO", 2, ST7735_WHITE);
+    }
+    ST7735_SetCursor(7, 9);
+    if(LANGMODE == 1) ST7735_OutStringCool("Pauses left: ", 1, ST7735_ORANGE);
+    if(LANGMODE == 2){
+        ST7735_SetCursor(8, 9);
+        ST7735_OutStringCool("Zaustave: ", 1, ST7735_ORANGE);
+    }
+    printf("%i", pauseCount);
 }
 
 void langSelect(){
@@ -106,6 +124,12 @@ void mainMenu(){
         LORE = 1;
         MAINMENU = 0;
         LOREUPDATE = 1;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if((switchDataB&SP) == SP){
+        INFO = 1;
+        MAINMENU = 0;
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
@@ -185,6 +209,17 @@ void lore(){
         Clock_Delay1ms(250);
     }
     LOREUPDATE = 0;
+}
+
+void info(){
+    if(LANGMODE == 1) infoEng();
+    if(LANGMODE == 2) infoBH();
+    if(switchDataA > 0 || switchDataB > 0){
+        MAINMENU = 1;
+        INFO = 0;
+        ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
 }
 
 void win(){

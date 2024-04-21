@@ -3,6 +3,8 @@
 
 void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy);
 
+void pauseHandler(int8_t pauseCount);
+
 void langSelect();
 
 void mainMenu();
@@ -22,5 +24,7 @@ void win();
 void lose();
 
 void answers();
+
+void info();
 
 #endif

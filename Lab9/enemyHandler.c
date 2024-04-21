@@ -109,7 +109,7 @@ void Phase_Handler(){
         activate2 = 1;
         activate3 = 1;
         bulletTimer1 = 10;
-        bulletTimer2 = 45;
+        bulletTimer2 = 20;
         bulletTimer3 = 75;
     }
     else if(PHASE == 5){
@@ -124,27 +124,29 @@ uint8_t curBullet;
 
 void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){
     uint8_t x1, x2, x3;
-    if(PHASE == 0) x1 = 2;
-    else if(PHASE == 1) x1 = 2, x2 = 1;
-    else if(PHASE == 2) x1 = 2, x2 = 2;
-    else if(PHASE == 3) x1 = 3, x2 = 2;
-    else if(PHASE == 4) x1 = 3, x2 = 3;
+    if(PHASE == 0) x1 = 4;
+    else if(PHASE == 1) x1 = 4, x2 = 2;
+    else if(PHASE == 2) x1 = 5, x2 = 3;
+    else if(PHASE == 3) x1 = 6, x2 = 4;
+    else if(PHASE == 4) x1 = 5, x2 = 3;
 
     if(pattern1){ //shoot 1 bullet at player
         pattern1 = 0;
         curBullet++;
-        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 0, 0, x1);
         if(curBullet > enemyBulletBuffer) curBullet = 0;
+        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 0, 0, x1);
     }
     if(pattern2){ //shoot burst at player
         pattern2 = 0;
         curBullet++;
+        if(curBullet > enemyBulletBuffer) curBullet = 0;
         setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, -2, 2, x2);
         curBullet++;
+        if(curBullet > enemyBulletBuffer) curBullet = 0;
         setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 0, 0, x2);       //this is hopefully like a spray
         curBullet++;
-        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 2, -2, x2);
         if(curBullet > enemyBulletBuffer) curBullet = 0;
+        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 2, -2, x2);
     }
     if(pattern3){
         circleTrajectory();
@@ -223,8 +225,8 @@ void setEnemyBulletTrajectory(Entity_t *thePlayer, Entity_t *theEnemy, uint8_t i
         n2 = dy;
         if(n2 < 0) n2*=-1;
         b = n1 + n2;
-        dx = dx<<x;
-        dy = dy<<x;
+        dx = dx*x;
+        dy = dy*x;
         spdX = dx/b;
         spdY = dy/b;
 

@@ -43,7 +43,8 @@ extern uint8_t GAMESTART;
 extern uint8_t LANGMODE;
 extern uint32_t switchDataA;
 extern uint32_t switchDataB;
-extern uint16_t score;
+extern uint8_t score;
+extern uint8_t PAUSED;
 uint32_t collisioncheck = 0;
 uint8_t CONTINUE;
 
@@ -254,11 +255,11 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
   }
   if((A&LFT) == LFT){   //will warp if warp avail and in bounds
     if(WARP){
-        x += (spdX<<4);
+        x += (spdX<<5);
         if(x > 180) x = 180;
         if(x < 0) x = 0;
 
-        y += (spdY<<4);
+        y += (spdY<<5);
         if(y > 128) y = 128;
         if(y < 0) y = 0;
 
@@ -269,7 +270,6 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
     return 3;
   }
   if((A&UP) == UP){ //Will pause game
-    //Pause
       return 4;
   }
   if((B&SP) == SP){ //Joystick button, tbd

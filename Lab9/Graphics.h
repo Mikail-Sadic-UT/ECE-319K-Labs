@@ -25,6 +25,10 @@ void drawTitleEng();
 
 void drawTitleBH();
 
+void infoEng();
+
+void infoBH();
+
 void gameOverEng();
 
 void gameOverBH();

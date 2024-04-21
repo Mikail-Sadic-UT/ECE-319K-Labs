@@ -16,7 +16,7 @@
 #include "Engine.h"
 #include "Graphics.h"
 
-extern uint16_t score;
+extern uint8_t score;
 extern uint8_t FIRSTUPDATE;
 extern uint8_t lastClear;
 extern uint8_t ENEMYUPDATE;
@@ -25,6 +25,7 @@ extern uint8_t ENEMYUPDATE;
 extern uint8_t FIRSTUPDATE;
 extern uint8_t bulletHit;
 extern uint8_t WARP;
+extern uint8_t pauseCount;
 
 extern Entity_t enemyBullets[];
 
@@ -90,13 +91,14 @@ void drawLangScrn(){        //Language select screen
     ST7735_OutStringCool("Language", 2, ST7735_WHITE);
     ST7735_SetCursor(11, 5);
     ST7735_OutStringCool("English", 1, ST7735_WHITE);
-    ST7735_SetCursor(5, 7);
-    ST7735_OutStringCool("Bosanski / Hrvatski", 1, ST7735_WHITE);
+    ST7735_SetCursor(7, 7);
+    ST7735_OutStringCool("Srpsko-Hrvatski   ", 1, ST7735_WHITE);
+  //ST7735_OutStringCool("Bosanski / Hrvatski", 1, ST7735_WHITE);
     ST7735_SetCursor(9, 10);
     ST7735_OutStringCool("Jezik", 2, ST7735_WHITE);
 
     ST7735_DrawBitmap(47, 111, iconup, 11, 11);
-    ST7735_DrawBitmap(68, 147, icondwn, 11, 11);
+    ST7735_DrawBitmap(68, 137, icondwn, 11, 11);
 }
 
 void drawEngOpt(){
@@ -168,6 +170,10 @@ void drawTitleEng(){
     ST7735_DrawBitmap(77, 111, iconlft, 11, 11);
     ST7735_DrawBitmap(97, 111, iconup, 11, 11);
 
+    ST7735_SetCursor(3, 12);
+    ST7735_OutStringCool("Info", 1, ST7735_WHITE);
+    ST7735_DrawBitmap(117, 156, joystick, 10, 10);
+
 }
 
 void drawTitleBH(){
@@ -184,6 +190,10 @@ void drawTitleBH(){
     ST7735_DrawBitmap(57, 111, icondwn, 11, 11);
     ST7735_DrawBitmap(77, 111, iconlft, 11, 11);
     ST7735_DrawBitmap(97, 111, iconup, 11, 11);
+
+    ST7735_SetCursor(3, 12);
+    ST7735_OutStringCool("Info", 1, ST7735_WHITE);
+    ST7735_DrawBitmap(117, 156, joystick, 10, 10);
 }
 
 void gameOverEng(){
@@ -191,7 +201,7 @@ void gameOverEng(){
     ST7735_OutStringCool("GAME OVER!", 2, ST7735_RED);
     ST7735_SetCursor(10, 7);
     ST7735_OutStringCool("Score:", 1, ST7735_WHITE);
-    printf("%i", score);
+    printf("%i", score + pauseCount);
 
 }
 
@@ -200,7 +210,7 @@ void gameOverBH(){
     ST7735_OutStringCool("IGRA GOTOVA!", 2, ST7735_RED);
     ST7735_SetCursor(9, 7);
     ST7735_OutStringCool("Rezultat:", 1, ST7735_WHITE);
-    printf("%i", score);
+    printf("%i", score + pauseCount);
 }
 
 void winEng(){
@@ -208,7 +218,7 @@ void winEng(){
     ST7735_OutStringCool("YOU WIN!", 2, ST7735_GREEN);
     ST7735_SetCursor(9, 7);
     ST7735_OutStringCool("Score:", 1, ST7735_WHITE);
-    printf("%i", score);
+    printf("%i", score + pauseCount);
     ST7735_SetCursor(4, 11);
     ST7735_OutStringCool("Press any button to", 1, ST7735_WHITE);
     ST7735_SetCursor(4, 12);
@@ -220,11 +230,61 @@ void winBH(){
     ST7735_OutStringCool("POBJEDA!", 2, ST7735_GREEN);
     ST7735_SetCursor(8, 7);
     ST7735_OutStringCool("Rezultat:", 1, ST7735_WHITE);
-    printf("%i", score);
+    printf("%i", score + pauseCount);
     ST7735_SetCursor(4, 11);
     ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
     ST7735_SetCursor(4, 12);
     ST7735_OutStringCool("     nastavis     ", 1, ST7735_WHITE);
+}
+
+void infoEng(){
+    ST7735_SetCursor(10, 1);
+    ST7735_OutStringCool("INFO", 2, ST7735_WHITE);
+    ST7735_SetCursor(1, 3);
+    ST7735_OutStringCool("Score is determined by", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 4);
+    ST7735_OutStringCool("damage done + num of", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 5);
+    ST7735_OutStringCool("remaining pauses. Max ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 6);
+    ST7735_OutStringCool("score is 100. Top left num", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 7);
+    ST7735_OutStringCool("during game is Boss HP.", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 8);
+    ST7735_OutStringCool("Top right is warp ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 9);
+    ST7735_OutStringCool("indicator. The LEDs will ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 10);
+    ST7735_OutStringCool("show last 3 player lives.", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 11);
+    ST7735_OutStringCool("Press any button to", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 12);
+    ST7735_OutStringCool("      return", 1, ST7735_WHITE);
+}
+
+void infoBH(){
+    ST7735_SetCursor(10, 1);
+    ST7735_OutStringCool("INFO", 2, ST7735_WHITE);
+    ST7735_SetCursor(1, 3);
+    ST7735_OutStringCool("Rezultat je determinan", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 4);
+    ST7735_OutStringCool("od broj udaraca i sta je", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 5);
+    ST7735_OutStringCool("ostala od pauza. Max ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 6);
+    ST7735_OutStringCool("rezultat je 100. Broj gore", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 7);
+    ST7735_OutStringCool("ljevo dok igras je Sef HP.", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 8);
+    ST7735_OutStringCool("Gore desno je warp ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 9);
+    ST7735_OutStringCool("indikaotr. LEDove ", 1, ST7735_WHITE);
+    ST7735_SetCursor(1, 10);
+    ST7735_OutStringCool("prikazuju zadnja 3 zivota.", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 11);
+    ST7735_OutStringCool("Pritizni sta god da", 1, ST7735_WHITE);
+    ST7735_SetCursor(4, 12);
+    ST7735_OutStringCool("     se vratis     ", 1, ST7735_WHITE);
 }
 
 void answersEng(){
