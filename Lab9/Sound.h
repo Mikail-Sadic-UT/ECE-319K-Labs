@@ -23,14 +23,17 @@ void Sound_Init(void);
 //        count is the length of the array
 // Output: none
 // special cases: as you wish to implement
-void Sound_Start(const uint8_t *pt, uint32_t count);
+void Sound_Start(uint32_t count, uint8_t mode);
+
+void Sound_Stop();
 
 // following 8 functions do not output to the DAC
 // they configure pointers/counters and initiate the sound by calling Sound_Start
-
+void Octave();
 void Sound_Crash(void);
 void Sound_Explosion(void);
 void Sound_Warp(void);
+void Sound_Hit(void);
 
 
 #endif

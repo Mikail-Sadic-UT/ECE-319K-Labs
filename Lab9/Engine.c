@@ -266,6 +266,8 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
         thePlayer->x = x;
         thePlayer->y = y;
         WARP = 0;
+
+        //play warp sound
     }
     return 3;
   }
@@ -304,7 +306,9 @@ void updateEnemyHP(Entity_t *Enemy){    //if bullet hit update hp--
     if(Enemy->hp == 0) WIN = 1;
 }
 
-void winHandler(){
+void winHandler(Entity_t *theEnemy){
+    drawEnemyDeath(theEnemy);
+    Clock_Delay1ms(300);
     win();
     Clock_Delay1ms(1000);
     while(WIN){
@@ -321,7 +325,9 @@ void winHandler(){
     }
 }
 
-void gameEndHandler(){
+void gameEndHandler(Entity_t *thePlayer){
+    drawPlayerDeath(thePlayer);
+    Clock_Delay1ms(250);
     if(CRASH){
         ST7735_SetCursor(8, 9);
         if(LANGMODE == 1) ST7735_OutStringCool("You crashed!", 1, ST7735_ORANGE);

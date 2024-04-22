@@ -12,13 +12,11 @@
 
 uint32_t x; //index
 
-const uint8_t   octave[98] = {14,8,10,8,11,14,9,9,9,11,18,18,15,16,16,16,16,19,23,22,22,22,22,16,8,9,9,9,9,10,15,16,15,17,14,12,11,9,9,10,10,9,13,17,16,16,16,17,10,2,4,3,4,4,4,11,17,18,17,18,25,26,23,23,23,23,23,26,30,29,29,29,29,23,15,16,16,15,16,16,21,23,21,23,20,18,17,15,15,16,15,15,18,22,22,21,22,22};
-
 void SysTick_IntArm(uint32_t period, uint32_t priority){
     x = 0;
     SysTick->CTRL = 0;
     SysTick->LOAD = (period - 1);
-    SCB->SHP[1] = (SCB->SHP[1]&(~0xC0000000)) | priority<<30;   //double check priority
+    SCB->SHP[1] = (SCB->SHP[1]&(~0xC0000000)) | priority<<30; //Copied this from the textbook so I think it's probably right
     SysTick->VAL = 0;
     SysTick->CTRL = 0x07;
 }
@@ -27,10 +25,16 @@ void SysTick_IntArm(uint32_t period, uint32_t priority){
 // Initialize the 5 bit DAC
 void Sound_Init(void){
     SysTick_IntArm(1, 1);
+    DAC5_Init();
 }
+
+uint8_t MODE;
+
 void SysTick_Handler(void){ // called at 11 kHz // output one value to DAC if a sound is active
-	DAC5_Out(octave[x]);
-	x++;
+	if(MODE == 1) Sound_Hit();
+	if(MODE == 2) Sound_Crash();
+	if(MODE == 3) Sound_Warp();
+	if(MODE == 4) Sound_Explosion();
 }
 
 //******* Sound_Start ************
@@ -43,23 +47,43 @@ void SysTick_Handler(void){ // called at 11 kHz // output one value to DAC if a 
 //        count is the length of the array
 // Output: none
 // special cases: as you wish to implement
-void Sound_Start(const uint8_t *pt, uint32_t count){
+void Sound_Start(uint32_t count, uint8_t mode){
     SysTick->LOAD = (count - 1);
     SysTick->VAL = 0;
+    MODE = mode;
+    x = 0;
+}
+
+void Sound_Stop(){
+    SysTick->LOAD = 0;
+    x = 0;
 }
 
 void Sound_Warp(void){
-// write this
-  
+    if(x > 4205) Sound_Stop();
+    DAC5_Out(Warp[x]);
+    x++;
 }
+
+void Sound_Hit(void){
+    if(x > 375) Sound_Stop();
+    DAC5_Out(Hit[x]);
+    x++;
+}
+
 void Sound_Crash(void){
-// write this
-  
+    if(x > 3082) Sound_Stop();
+    DAC5_Out(Crash[x]);
+    x++;
 }
+
 void Sound_Explosion(void){
-// write this
  
 }
 
-
+void Octave(){ //debug
+    if(x > 98) x = 0;
+    DAC5_Out(octave[x]);
+    x++;
+}
 

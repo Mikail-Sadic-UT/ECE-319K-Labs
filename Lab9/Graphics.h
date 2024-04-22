@@ -5,7 +5,11 @@ void graphicsHandler(Entity_t *thePlayer, Entity_t *theEnemy, Entity_t *playerBu
 
 void drawPlayer(Entity_t *thePlayer);   //Draws Player
 
+void drawPlayerDeath(Entity_t *thePlayer);
+
 void drawEnemy(Entity_t *theEnemy);     //Draws Enemy
+
+void drawEnemyDeath(Entity_t *theEnemy);
 
 void drawPlayerBullet(Entity_t *Bullet);    //Draws player bullet
 

@@ -154,7 +154,7 @@ void TIMG12_IRQHandler(void){           //Game Engine
           bossHPcounter++;
       }
       switchDataOld = switchData;
-      //start sounds
+      //if(HPFLAG) //Play hitmarker
       UPDATE = 1;                  //Update flag
   }
 }
@@ -192,8 +192,8 @@ int main(void) { // main
             }
             UPDATE = 0; //flag reset
         }
-        while(GAMEOVER) gameEndHandler();   //game end handlers
-        while(WIN) winHandler();
+        while(GAMEOVER) gameEndHandler(&thePlayer);   //game end handlers
+        while(WIN) winHandler(&theEnemy);
     }
 }
 
@@ -262,8 +262,17 @@ uint32_t Random(uint32_t n){
   return (Random32() >> 16) % n;
 }
 
+
+#define HIT 1
+#define HITP 3000
+
+#define CRASH 2
+#define CRASHP 5000
+
+#define WARP 3
+#define WARPP 5000
 // use main4 to test sound outputs
-int main1(void)
+int main2(void)
 {
   uint32_t last = 0, now;
   __disable_irq();
@@ -277,23 +286,10 @@ int main1(void)
   while (1)
   {
     now = Switch_InA(); // one of your buttons
-    if ((last == 0) && (now == UP))
-    {
-      Sound_Crash(); // call one of your sounds
-    }
-    if ((last == 0) && (now == LFT))
-    {
-      Sound_Warp(); // call one of your sounds
-    }
-    if ((last == 0) && (now == RT))
-    {
-      Sound_Explosion(); // call one of your sounds
-    }
-    if ((last == 0) && (now == 8))
-    {
-      //Sound_Fastinvader1(); // call one of your sounds
-    }
-    // modify this to test all your sounds
+    if ((last == 0) && (now == UP)) Sound_Start(HITP, HIT);
+    if ((last == 0) && (now == LFT)) Sound_Start(CRASHP, CRASH);
+    if ((last == 0) && (now == RT)) Sound_Start(WARPP, WARP);
+    if ((last == 0) && (now == 8)) Sound_Start(42, 42); //will be explosion
   }
 }
 

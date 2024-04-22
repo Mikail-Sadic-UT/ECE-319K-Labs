@@ -46,10 +46,18 @@ void drawPlayer(Entity_t *thePlayer){   //draw player
     PyOld = thePlayer->y;
 }
 
+void drawPlayerDeath(Entity_t *thePlayer){   //draw player
+    ST7735_DrawBitmap(thePlayer->y, thePlayer->x, explosionsmall, thePlayer->h, thePlayer->w);
+}
+
 uint8_t ExOld, EyOld;
 void drawEnemy(Entity_t *theEnemy){     //draw enemy
     ST7735_DrawBitmap(theEnemy->y, theEnemy->x, enemy, theEnemy->h, theEnemy->w);
     ENEMYUPDATE = 0;
+}
+
+void drawEnemyDeath(Entity_t *theEnemy){     //draw enemy
+    ST7735_DrawBitmap(theEnemy->y, theEnemy->x, explosionbig, theEnemy->h, theEnemy->w);
 }
 
 uint8_t PBxOld = 0, PByOld = 0;

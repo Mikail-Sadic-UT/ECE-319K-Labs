@@ -48,8 +48,8 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
 
 void updateEnemyHP(Entity_t *Enemy);    //updates enemy hp on hit
 
-void winHandler();
+void winHandler(Entity_t *theEnemy);
 
-void gameEndHandler();
+void gameEndHandler(Entity_t *thePlayer);
 
 #endif
