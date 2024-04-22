@@ -10,7 +10,7 @@
 #include "../inc/DAC5.h"
 #include "../inc/Timer.h"
 
-uint32_t x; //index
+uint16_t x; //index
 
 void SysTick_IntArm(uint32_t period, uint32_t priority){
     x = 0;
@@ -78,7 +78,9 @@ void Sound_Crash(void){
 }
 
 void Sound_Explosion(void){
- 
+    if(x > 8731) Sound_Stop();
+    DAC5_Out(explosion[x]);
+    x++;
 }
 
 void Octave(){ //debug

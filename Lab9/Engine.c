@@ -48,6 +48,14 @@ extern uint8_t PAUSED;
 uint32_t collisioncheck = 0;
 uint8_t CONTINUE;
 
+#define HIT 1
+#define HITP 3000
+#define Crash 2
+#define CRASHP 5000
+#define Warp 3
+#define WARPP 5000
+#define Expl 4
+#define EXPLP 5000
 
 void playerInit(Entity_t *thePlayer, uint16_t hp){  //Initializes player
     thePlayer->x = 128;
@@ -255,6 +263,8 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
   }
   if((A&LFT) == LFT){   //will warp if warp avail and in bounds
     if(WARP){
+        Sound_Start(WARPP, Warp); //play warp sound
+
         x += (spdX<<5);
         if(x > 180) x = 180;
         if(x < 0) x = 0;
@@ -266,8 +276,6 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
         thePlayer->x = x;
         thePlayer->y = y;
         WARP = 0;
-
-        //play warp sound
     }
     return 3;
   }
@@ -284,6 +292,7 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
 
 void setHPLED(Entity_t *thePlayer) {    //Sets HP LEDS based off player health
   HPFLAG = 0;
+  Sound_Start(HITP, HIT);
   if (thePlayer->hp >= 3) {
     LED_On(R3D | YEL | GRN);
   }
@@ -295,19 +304,24 @@ void setHPLED(Entity_t *thePlayer) {    //Sets HP LEDS based off player health
     LED_On(R3D);
     LED_Off(GRN | YEL);
   }
-  else if (thePlayer->hp == 0) {
+  else if (thePlayer->hp <= 0) {
     LED_Off(GRN | YEL | R3D);
+    GAMESTART = 0;
     GAMEOVER = 1;               //gameover :(
   }
 }
 
 void updateEnemyHP(Entity_t *Enemy){    //if bullet hit update hp--
     Enemy->hp = Enemy->hp - 1;
-    if(Enemy->hp == 0) WIN = 1;
+    if(Enemy->hp <= 0) {
+        GAMESTART = 0;
+        WIN = 1;
+    }
 }
 
 void winHandler(Entity_t *theEnemy){
     drawEnemyDeath(theEnemy);
+    Sound_Start(EXPLP, Expl);
     Clock_Delay1ms(300);
     win();
     Clock_Delay1ms(1000);
@@ -327,12 +341,13 @@ void winHandler(Entity_t *theEnemy){
 
 void gameEndHandler(Entity_t *thePlayer){
     drawPlayerDeath(thePlayer);
-    Clock_Delay1ms(250);
     if(CRASH){
+        Sound_Start(CRASHP, Crash);
         ST7735_SetCursor(8, 9);
         if(LANGMODE == 1) ST7735_OutStringCool("You crashed!", 1, ST7735_ORANGE);
         if(LANGMODE == 2) ST7735_OutStringCool("Sudarijo se!", 1, ST7735_ORANGE);
-    }
+    } else Sound_Start(EXPLP, Expl);
+    Clock_Delay1ms(250);
     ST7735_SetCursor(1, 11);
     if(LANGMODE == 1) ST7735_OutStringCool("Press any button to reset", 1, ST7735_WHITE);
     if(LANGMODE == 2) {

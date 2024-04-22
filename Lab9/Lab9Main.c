@@ -51,8 +51,6 @@
 
 #define ADCVREF_VDDA 0x000
 
-
-
 uint8_t GAMEMODE;
 
 uint32_t ADCX;
@@ -108,6 +106,14 @@ uint8_t switchData;
 uint8_t bossHPcounter;
 uint8_t bossHPrefresh;
 
+#define HIT 1
+#define HITP 3000
+
+#define Crash 2
+#define CRASHP 5000
+
+#define Warp 3
+#define WARPP 5000
 
 void TIMG12_IRQHandler(void){           //Game Engine
   if ((TIMG12->CPU_INT.IIDX) == 1){
@@ -154,7 +160,6 @@ void TIMG12_IRQHandler(void){           //Game Engine
           bossHPcounter++;
       }
       switchDataOld = switchData;
-      //if(HPFLAG) //Play hitmarker
       UPDATE = 1;                  //Update flag
   }
 }
@@ -262,15 +267,6 @@ uint32_t Random(uint32_t n){
   return (Random32() >> 16) % n;
 }
 
-
-#define HIT 1
-#define HITP 3000
-
-#define CRASH 2
-#define CRASHP 5000
-
-#define WARP 3
-#define WARPP 5000
 // use main4 to test sound outputs
 int main2(void)
 {

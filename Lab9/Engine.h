@@ -3,7 +3,7 @@
 
 struct Entity
 {
-  uint8_t hp;
+  int8_t hp;
   uint8_t x;
   uint8_t y;
   uint8_t h, w;
