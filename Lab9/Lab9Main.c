@@ -266,28 +266,3 @@ uint32_t Random32(void){
 uint32_t Random(uint32_t n){
   return (Random32() >> 16) % n;
 }
-
-// use main4 to test sound outputs
-int main2(void)
-{
-  uint32_t last = 0, now;
-  __disable_irq();
-  PLL_Init(); // set bus speed
-  LaunchPad_Init();
-  Switch_Init();          // initialize switches
-  LED_Init();             // initialize LED
-  Sound_Init();           // initialize sound
-  TExaS_Init(ADC0, 6, 0); // ADC1 channel 6 is PB20, TExaS scope
-  __enable_irq();
-  while (1)
-  {
-    now = Switch_InA(); // one of your buttons
-    if ((last == 0) && (now == UP)) Sound_Start(HITP, HIT);
-    if ((last == 0) && (now == LFT)) Sound_Start(CRASHP, CRASH);
-    if ((last == 0) && (now == RT)) Sound_Start(WARPP, WARP);
-    if ((last == 0) && (now == 8)) Sound_Start(42, 42); //will be explosion
-  }
-}
-
-// ALL ST7735 OUTPUT MUST OCCUR IN MAIN
-
