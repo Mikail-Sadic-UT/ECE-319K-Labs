@@ -51,6 +51,12 @@
 
 #define ADCVREF_VDDA 0x000
 
+#define Demo 0
+#define Easy 1
+#define Norm 2
+#define Hard 3
+#define NoHi 4
+
 uint8_t GAMEMODE;
 
 uint32_t ADCX;
@@ -83,6 +89,7 @@ uint8_t LOREUPDATE;
 uint8_t PAUSED;
 uint8_t UNPAUSED;
 int8_t pauseCount;
+uint8_t Mode;
 
 extern uint8_t bulletCounter1, bulletCounter2, bulletCounter3;
 extern uint8_t bulletTimer1, bulletTimer2, bulletTimer3;
@@ -195,6 +202,7 @@ void gameInit(){                                        // Game init
       bulletInit(&thePlayer, &playerBullet);            // Inits bullet
       phaseInit(enemyHPeasy);                           // Sets Phase HPs
       setHPLED(&thePlayer);                             // Sets LEDS
+      Mode = 1;
       UPDATE = 0;
       HPFLAG = 1;
       ENEMYUPDATE = 1;
@@ -230,6 +238,80 @@ void gameInit(){                                        // Game init
       for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
           bulletReset(&theEnemy, i);                    // Inits enemy bullets
       }
+}
+
+
+void reset(){                               // Resets game to main menu without resetting everything (Keeps language and current gamemode)
+    ST7735_FillScreen(ST7735_BLACK);
+    if(Mode == Demo){
+        playerInit(&thePlayer, playerHPdemo);             // Inits player
+        enemyInit(&theEnemy, enemyHPdemo);                // Inits enemy
+        bulletInit(&thePlayer, &playerBullet);            // Inits bullet
+        phaseInit(enemyHPdemo);                           // Sets Phase HPs
+        setHPLED(&thePlayer);                             // Sets LEDS
+    }
+    else if(Mode == Easy){
+        playerInit(&thePlayer, playerHPeasy);
+        enemyInit(&theEnemy, enemyHPeasy);
+        bulletInit(&thePlayer, &playerBullet);
+        phaseInit(enemyHPeasy);
+        setHPLED(&thePlayer);
+    }
+    else if(Mode == Norm){
+        playerInit(&thePlayer, playerHPnormal);
+        enemyInit(&theEnemy, enemyHPnormal);
+        bulletInit(&thePlayer, &playerBullet);
+        phaseInit(enemyHPnormal);
+        setHPLED(&thePlayer);
+    }
+    else if(Mode == Hard){
+        playerInit(&thePlayer, playerHPhard);
+        enemyInit(&theEnemy, enemyHPhard);
+        bulletInit(&thePlayer, &playerBullet);
+        phaseInit(enemyHPhard);
+        setHPLED(&thePlayer);
+    }
+    else if(Mode == NoHi){
+        playerInit(&thePlayer, playerHPnohit);
+        enemyInit(&theEnemy, enemyHPnohit);
+        bulletInit(&thePlayer, &playerBullet);
+        phaseInit(enemyHPnohit);
+        setHPLED(&thePlayer);
+    }
+         UPDATE = 0;
+         HPFLAG = 1;
+         ENEMYUPDATE = 1;
+         PLAYERUPDATE = 1;
+         GAMEOVER = 0;
+         CRASH = 0;
+         bulletHit = 0;
+         lastClear = 0;
+         WIN = 0;
+         GAMESTART = 0;
+         LANGSELECT = 0;
+         OPTIONSELECT = 0;
+         MAINMENU = 1;
+         score = 0;                                        // Basically resets all global flags
+         FIRSTUPDATE = 1;
+         LORE = 0;
+         CONTROLS = 0;
+         LOREUPDATE = 0;
+         WARPCounter = 0;
+         WARP = 0;
+         switchDataOld = 0;
+         PHASE = 0;
+         activate1 = 0;
+         activate2 = 0;
+         activate3 = 0;
+         refreshCounter = 0;
+         refresh = 0;
+         PAUSED = 0;
+         UNPAUSED = 0;
+         INFO = 0;
+         pauseCount = 3;
+         for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
+             bulletReset(&theEnemy, i);                    // Inits enemy bullets
+         }
 }
 
 uint8_t TExaS_LaunchPadLogicPB27PB26(void) {return (0x80 | ((GPIOB->DOUT31_0 >> 26) & 0x03));}

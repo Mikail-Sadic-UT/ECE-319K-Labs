@@ -39,6 +39,12 @@
 #define enemyHPhard 87
 #define enemyHPnohit 97
 
+#define Demo 0
+#define Easy 1
+#define Norm 2
+#define Hard 3
+#define NoHi 4
+
 extern uint8_t LANGMODE;
 extern uint32_t switchDataA;
 extern uint32_t switchDataB;
@@ -53,7 +59,7 @@ extern uint8_t LOREUPDATE;
 extern uint8_t LANGSELECT;
 extern uint8_t GAMESTART;
 extern uint8_t CONTINUE;
-
+extern uint8_t Mode;
 
 void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){  //Handles all menus
     if(LANGSELECT) langSelect();
@@ -140,6 +146,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
     if(LANGMODE == 2) drawBHOpt();
 
     if((switchDataA&UP) == UP){                         //DEMO
+        Mode = Demo;
         OPTIONSELECT = 0;
         MAINMENU = 1;
         playerInit(thePlayer, playerHPdemo);            // inits player
@@ -149,6 +156,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Clock_Delay1ms(250);
     }
     if((switchDataA&RT) == RT){                         //EASY
+        Mode = Easy;
         OPTIONSELECT = 0;
         MAINMENU = 1;
         playerInit(thePlayer, playerHPeasy);            // inits player
@@ -158,6 +166,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Clock_Delay1ms(250);
     }
     if((switchDataA&DWN) == DWN){                       //NORMAL
+        Mode = Norm;
         OPTIONSELECT = 0;
         MAINMENU = 1;
         playerInit(thePlayer, playerHPnormal);          // inits player
@@ -167,6 +176,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Clock_Delay1ms(250);
     }
     if((switchDataA&LFT) == LFT){                       //HARD
+        Mode = Hard;
         OPTIONSELECT = 0;
         MAINMENU = 1;
         playerInit(thePlayer, playerHPhard);            // inits player
@@ -176,6 +186,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Clock_Delay1ms(250);
     }
     if((switchDataB&SP) == SP){                         //NO-HIT
+        Mode = NoHi;
         OPTIONSELECT = 0;
         MAINMENU = 1;
         playerInit(thePlayer, playerHPnohit);           // inits player

@@ -16,6 +16,12 @@
 #include "Engine.h"
 #include "Graphics.h"
 
+#define Demo 0
+#define Easy 1
+#define Norm 2
+#define Hard 3
+#define NoHi 4
+
 extern uint8_t score;
 extern uint8_t FIRSTUPDATE;
 extern uint8_t lastClear;
@@ -28,6 +34,7 @@ extern uint8_t WARP;
 extern uint8_t pauseCount;
 extern uint8_t UNPAUSED;
 extern uint8_t refresh;
+extern uint8_t Mode;
 
 extern Entity_t enemyBullets[];
 
@@ -201,6 +208,27 @@ void drawTitleEng(){
     ST7735_OutStringCool("Info", 1, ST7735_WHITE);
     ST7735_DrawBitmap(117, 156, joystick, 10, 10);
 
+    ST7735_SetCursor(14, 12);
+    if(Mode == Demo) {
+        ST7735_OutStringCool("  Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Demo", 1, ST7735_WHITE);
+    }
+    else if(Mode == Easy) {
+        ST7735_OutStringCool("  Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Easy", 1, ST7735_GREEN);
+    }
+    else if(Mode == Norm) {
+        ST7735_OutStringCool("Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Normal", 1, ST7735_YELLOW);
+    }
+    else if(Mode == Hard) {
+        ST7735_OutStringCool("  Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Hard", 1, ST7735_ORANGE);
+    }
+    else if(Mode == NoHi) {
+        ST7735_OutStringCool("Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("No-Hit", 1, ST7735_RED);
+    }
 }
 
 void drawTitleBH(){
@@ -221,6 +249,28 @@ void drawTitleBH(){
     ST7735_SetCursor(3, 12);
     ST7735_OutStringCool("Info", 1, ST7735_WHITE);
     ST7735_DrawBitmap(117, 156, joystick, 10, 10);
+
+    ST7735_SetCursor(12, 12);
+    if(Mode == Demo) {
+        ST7735_OutStringCool("    Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Demo", 1, ST7735_WHITE);
+    }
+    else if(Mode == Easy) {
+        ST7735_OutStringCool("    Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Lako", 1, ST7735_GREEN);
+    }
+    else if(Mode == Norm) {
+        ST7735_OutStringCool("Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Normalno", 1, ST7735_YELLOW);
+    }
+    else if(Mode == Hard) {
+        ST7735_OutStringCool("   Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Tesko", 1, ST7735_ORANGE);
+    }
+    else if(Mode == NoHi) {
+        ST7735_OutStringCool("Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("Bez-Udar", 1, ST7735_RED);
+    }
 }
 
 void gameOverEng(){

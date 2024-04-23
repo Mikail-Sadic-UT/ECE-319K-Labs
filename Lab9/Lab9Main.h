@@ -7,6 +7,8 @@ void gameInit();
 
 void initInit();
 
+void reset();
+
 void PLL_Init(void);
 
 uint32_t Random32(void);

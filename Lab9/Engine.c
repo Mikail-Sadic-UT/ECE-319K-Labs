@@ -327,7 +327,7 @@ void winHandler(Entity_t *theEnemy){    //Handles win stuff
             while(WIN){
                 if(switchDataA > 0){
                     Clock_Delay1ms(500);
-                    gameInit();
+                    reset();
                     Clock_Delay1ms(250);
                 }
             }
@@ -357,7 +357,7 @@ void gameEndHandler(Entity_t *thePlayer){   //Handles not win stuff
     while(GAMEOVER){
         if(switchDataA > 0){
             Clock_Delay1ms(1000);
-            gameInit();
+            reset();
             Clock_Delay1ms(250);
         }
     }
