@@ -23,7 +23,7 @@
 #include "menuHandler.h"
 #include "Graphics.h"
 #include "enemyHandler.h"
-                             //IMPORTANT!!!  For code to run, need to use updated ST7735.c and ST7735.h (will only work for horizontal screen)
+                             /*   IMPORTANT!!!  For code to run, need to use updated ST7735.c and ST7735.h (will only work for horizontal screen)   */
 #define R3D (1 << 17)
 #define YEL (1 << 28) // Info
 #define GRN (1 << 31)
@@ -131,7 +131,7 @@ void TIMG12_IRQHandler(void){           //Game Engine
       if(GAMESTART && !PAUSED){                                             //Run game
           updatePlayerBulletCoords(&playerBullet, &thePlayer, &theEnemy);   //updates player bullet
           for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
-              if(enemyBullets[i].live) updateEnemyBulletCoords(&thePlayer, &theEnemy, i);   //update enemy bullet coords
+              if(enemyBullets[i].live) updateEnemyBulletCoords(&thePlayer, &theEnemy, i);   //Update enemy bullet coords
           }
           if(switchData == 1) { // && switchDataOld != 1   <--- for button mash
               setPlayerBulletTrajectory(&thePlayer, &playerBullet, &theEnemy);              //Shoot bullet to bad guy
@@ -141,9 +141,9 @@ void TIMG12_IRQHandler(void){           //Game Engine
           if(bulletHit) updateEnemyHP(&theEnemy);           //Updates enemy HP on hit
           collisionCheck(&thePlayer, &theEnemy);            //Checks collision
           if(HPFLAG) setHPLED(&thePlayer);                  //Sets HPLEDS based on player HP
-          WARPCounter++;                                    //Warp timer++
+          WARPCounter++;
           if(WARPCounter > 150){
-              WARPCounter = 0;                              //WARP timer ~7sec
+              WARPCounter = 0;                              //WARP timer ~5sec
               WARP = 1;
           }
           phaseTimer();                                     //Attack pattern clocks
@@ -151,7 +151,7 @@ void TIMG12_IRQHandler(void){           //Game Engine
           Phase_Handler();                                  //Sets timers and activates patterns
           Pattern_Executer(&thePlayer, &theEnemy);          //executes pattern
           if(refreshCounter > 5){
-              refresh = 1;                                  //refreshes bossHP indicator and warp indicator at ~5hz
+              refresh = 1;                                  //Refreshes bossHP indicator and warp indicator at ~5hz
               refreshCounter = 0;
           }
           refreshCounter++;
@@ -161,40 +161,40 @@ void TIMG12_IRQHandler(void){           //Game Engine
   }
 }
 
-int main(void) {            // main
+int main(void) {            // Main
     __disable_irq();
     PLL_Init();
     LaunchPad_Init();
-    TimerG12_IntArm(80000000 / 30, 3);                // initialize interrupts on TimerG12 at 30 Hz
+    TimerG12_IntArm(80000000 / 30, 3);                // Initialize interrupts on TimerG12 at 30 Hz
     __enable_irq();
-    initInit();                                       // hardware inits
-    gameInit();                                       // data structure inits
+    initInit();                                       // Hardware inits
+    gameInit();                                       // Data structure inits
     while (1) {
         if (UPDATE) {   //30hz
-            if(GAMESTART && !PAUSED){                                   // if game has started run this
-                if(UNPAUSED) clearPause();                              // clears pause menu
-                graphicsHandler(&thePlayer, &theEnemy, &playerBullet);  // handles most graphics
-                drawEnemyBullets();                                     // handles enemy bullet graphics
-                if(refresh) refreshUI(&theEnemy);                       // refreshing ingame ui
+            if(GAMESTART && !PAUSED){                                   // If game has started run this
+                if(UNPAUSED) clearPause();                              // Clears pause menu
+                graphicsHandler(&thePlayer, &theEnemy, &playerBullet);  // Handles most graphics
+                drawEnemyBullets();                                     // Handles enemy bullet graphics
+                if(refresh) refreshUI(&theEnemy);                       // Refreshing ingame ui
             } else if(GAMESTART && PAUSED){
-                pauseHandler(pauseCount);                               //handles pause menu
+                pauseHandler(pauseCount);                               // Handles pause menu
             } else {
-                menuHandler(&thePlayer, &theEnemy);                     //handles menus
+                menuHandler(&thePlayer, &theEnemy);                     // Handles menus
             }
-            UPDATE = 0;         //flag reset
+            UPDATE = 0;         // flag reset
         }
-        while(GAMEOVER) gameEndHandler(&thePlayer);                     //game end handlers
+        while(GAMEOVER) gameEndHandler(&thePlayer);                     // Game end handlers
         while(WIN) winHandler(&theEnemy);
     }
 }
 
 void gameInit(){                                        // Game init
     ST7735_FillScreen(ST7735_BLACK);
-      playerInit(&thePlayer, playerHPeasy);             // inits player
-      enemyInit(&theEnemy, enemyHPeasy);                // inits enemy
-      bulletInit(&thePlayer, &playerBullet);            // inits bullet
-      phaseInit(enemyHPeasy);                           // sets Phase HPs
-      setHPLED(&thePlayer);                             // sets LEDS
+      playerInit(&thePlayer, playerHPeasy);             // Inits player
+      enemyInit(&theEnemy, enemyHPeasy);                // Inits enemy
+      bulletInit(&thePlayer, &playerBullet);            // Inits bullet
+      phaseInit(enemyHPeasy);                           // Sets Phase HPs
+      setHPLED(&thePlayer);                             // Sets LEDS
       UPDATE = 0;
       HPFLAG = 1;
       ENEMYUPDATE = 1;
@@ -233,13 +233,13 @@ void gameInit(){                                        // Game init
 }
 
 uint8_t TExaS_LaunchPadLogicPB27PB26(void) {return (0x80 | ((GPIOB->DOUT31_0 >> 26) & 0x03));}
-void initInit(){                                      //A bunch of other inits
+void initInit(){                                      // A bunch of other inits
     ST7735_InitPrintf();
     ST7735_FillScreen(ST7735_BLACK);
-    ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);           // init Dual ADC
-    Switch_Init();                                    // initialize switches
-    LED_Init();                                       // initialize LED
-    Sound_Init();                                     // initialize sound
+    ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);           // Init Dual ADC
+    Switch_Init();                                    // Initialize switches
+    LED_Init();                                       // Initialize LED
+    Sound_Init();                                     // Initialize sound
     TExaS_Init(0, 0, &TExaS_LaunchPadLogicPB27PB26);  // PB27 and PB26
 }
 
