@@ -19,6 +19,10 @@ void drawEnemyBullets();
 
 void drawIndicator();
 
+void clearPause();
+
+void refreshUI(Entity_t *theEnemy);
+
 void drawLangScrn();
 
 void drawEngOpt();

@@ -55,7 +55,7 @@ extern uint8_t GAMESTART;
 extern uint8_t CONTINUE;
 
 
-void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){
+void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){  //Handles all menus
     if(LANGSELECT) langSelect();
     if(MAINMENU) mainMenu();
     if(OPTIONSELECT) Options(thePlayer, theEnemy);
@@ -64,7 +64,7 @@ void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){
     if(INFO) info();
 }
 
-void pauseHandler(int8_t pauseCount){
+void pauseHandler(int8_t pauseCount){   //handles pauses
     ST7735_SetCursor(8, 2);
     if(LANGMODE == 1) ST7735_OutStringCool("PAUSED", 2, ST7735_WHITE);
     if(LANGMODE == 2) {
@@ -139,47 +139,47 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
     if(LANGMODE == 1) drawEngOpt();
     if(LANGMODE == 2) drawBHOpt();
 
-    if((switchDataA&UP) == UP){
+    if((switchDataA&UP) == UP){                         //DEMO
         OPTIONSELECT = 0;
         MAINMENU = 1;
-        playerInit(thePlayer, playerHPdemo);             // inits player
+        playerInit(thePlayer, playerHPdemo);            // inits player
         enemyInit(theEnemy, enemyHPdemo);               // inits enemy
         phaseInit(enemyHPdemo);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
-    if((switchDataA&RT) == RT){
+    if((switchDataA&RT) == RT){                         //EASY
         OPTIONSELECT = 0;
         MAINMENU = 1;
-        playerInit(thePlayer, playerHPeasy);             // inits player
+        playerInit(thePlayer, playerHPeasy);            // inits player
         enemyInit(theEnemy, enemyHPeasy);               // inits enemy
         phaseInit(enemyHPeasy);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
-    if((switchDataA&DWN) == DWN){
+    if((switchDataA&DWN) == DWN){                       //NORMAL
         OPTIONSELECT = 0;
         MAINMENU = 1;
-        playerInit(thePlayer, playerHPnormal);             // inits player
-        enemyInit(theEnemy, enemyHPnormal);               // inits enemy
+        playerInit(thePlayer, playerHPnormal);          // inits player
+        enemyInit(theEnemy, enemyHPnormal);             // inits enemy
         phaseInit(enemyHPnormal);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
-    if((switchDataA&LFT) == LFT){
+    if((switchDataA&LFT) == LFT){                       //HARD
         OPTIONSELECT = 0;
         MAINMENU = 1;
-        playerInit(thePlayer, playerHPhard);             // inits player
+        playerInit(thePlayer, playerHPhard);            // inits player
         enemyInit(theEnemy, enemyHPhard);               // inits enemy
         phaseInit(enemyHPhard);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
     }
-    if((switchDataB&SP) == SP){
+    if((switchDataB&SP) == SP){                         //NO-HIT
         OPTIONSELECT = 0;
         MAINMENU = 1;
-        playerInit(thePlayer, playerHPnohit);             // inits player
-        enemyInit(theEnemy, enemyHPnohit);               // inits enemy
+        playerInit(thePlayer, playerHPnohit);           // inits player
+        enemyInit(theEnemy, enemyHPnohit);              // inits enemy
         phaseInit(enemyHPnohit);
         ST7735_FillScreen(ST7735_BLACK);
         Clock_Delay1ms(250);
@@ -237,11 +237,3 @@ void lose(){
     if(LANGMODE == 1) gameOverEng();
     if(LANGMODE == 2) gameOverBH();
 }
-
-/*
-PauseMenu(){  When paused, go here until unpause
-  Options:
-  Resume
-  Quit
-}
-*/

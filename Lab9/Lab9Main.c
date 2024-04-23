@@ -1,8 +1,8 @@
 // Lab9Main.c
 // Runs on MSPM0G3507
 // Lab 9 ECE319K
-// Your name
-// Last Modified: 12/31/2023
+// Mikail Sadic & Joshua Koshy
+// Last Modified: 4/22/2024
 
 #include <stdio.h>
 #include <stdint.h>
@@ -23,7 +23,7 @@
 #include "menuHandler.h"
 #include "Graphics.h"
 #include "enemyHandler.h"
-                                 //IMPORTANT!!!  For code to run, need to use updated ST7735.c and ST7735.h (will only work for horizontal screen)
+                             //IMPORTANT!!!  For code to run, need to use updated ST7735.c and ST7735.h (will only work for horizontal screen)
 #define R3D (1 << 17)
 #define YEL (1 << 28) // Info
 #define GRN (1 << 31)
@@ -90,7 +90,6 @@ extern uint8_t phase0, phase1, phase2, phase3, phase4, phase5;
 extern uint8_t activate1, activate2, activate3;
 extern uint8_t PHASE;
 
-
 Entity_t thePlayer;
 
 Entity_t theEnemy;
@@ -100,11 +99,10 @@ Entity_t playerBullet;
 extern Entity_t enemyBullets[];
 
 uint8_t WARPCounter;
-uint8_t coordCounter = 0;
 uint8_t switchDataOld;
 uint8_t switchData;
-uint8_t bossHPcounter;
-uint8_t bossHPrefresh;
+uint8_t refreshCounter;
+uint8_t refresh;
 
 #define HIT 1
 #define HITP 3000
@@ -130,41 +128,40 @@ void TIMG12_IRQHandler(void){           //Game Engine
               pauseCount--;
           } else PAUSED = 1;
       }
-      if(GAMESTART && !PAUSED){     //Run game
-          updatePlayerBulletCoords(&playerBullet, &thePlayer, &theEnemy);  //updates player bullet
+      if(GAMESTART && !PAUSED){                                             //Run game
+          updatePlayerBulletCoords(&playerBullet, &thePlayer, &theEnemy);   //updates player bullet
           for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
               if(enemyBullets[i].live) updateEnemyBulletCoords(&thePlayer, &theEnemy, i);   //update enemy bullet coords
           }
           if(switchData == 1) { // && switchDataOld != 1   <--- for button mash
-              setPlayerBulletTrajectory(&thePlayer, &playerBullet, &theEnemy); //Shoot bullet to bad guy
+              setPlayerBulletTrajectory(&thePlayer, &playerBullet, &theEnemy);              //Shoot bullet to bad guy
               //switchDataOld = 1;    <--- for button mash
-          } else if(switchData == 0 && switchDataOld == 1) {switchDataOld = 0;}
-          updateCoords(&thePlayer);   //Updates player coord
-          if(bulletHit) updateEnemyHP(&theEnemy);   //Updates enemy HP on hit
-          WARPCounter++;                    //Warp timer++
-          coordCounter++;                   //Coord timer++
-          collisionCheck(&thePlayer, &theEnemy);    //Checks collision
-          if(HPFLAG) setHPLED(&thePlayer);  //Sets HPLEDS based on player HP
-          if(WARPCounter > 150){            //WARP timer ~7sec
-              WARPCounter = 0;
+          } else if(switchData == 0 && switchDataOld == 1) switchDataOld = 0;
+          updateCoords(&thePlayer);                         //Updates player coord
+          if(bulletHit) updateEnemyHP(&theEnemy);           //Updates enemy HP on hit
+          collisionCheck(&thePlayer, &theEnemy);            //Checks collision
+          if(HPFLAG) setHPLED(&thePlayer);                  //Sets HPLEDS based on player HP
+          WARPCounter++;                                    //Warp timer++
+          if(WARPCounter > 150){
+              WARPCounter = 0;                              //WARP timer ~7sec
               WARP = 1;
           }
-          phaseTimer();     //Attack pattern clocks
-          Phase_Switcher(&theEnemy);    //Switched phase based off HP
-          Phase_Handler();      //Sets timers and activates patterns
-          Pattern_Executer(&thePlayer, &theEnemy);  //executes pattern
-          if(bossHPcounter > 5){
-              bossHPrefresh = 1;    //refreshes bossHP indicator and warp indicator at ~5hz
-              bossHPcounter = 0;
+          phaseTimer();                                     //Attack pattern clocks
+          Phase_Switcher(&theEnemy);                        //Switched phase based off HP
+          Phase_Handler();                                  //Sets timers and activates patterns
+          Pattern_Executer(&thePlayer, &theEnemy);          //executes pattern
+          if(refreshCounter > 5){
+              refresh = 1;                                  //refreshes bossHP indicator and warp indicator at ~5hz
+              refreshCounter = 0;
           }
-          bossHPcounter++;
+          refreshCounter++;
       }
       switchDataOld = switchData;
-      UPDATE = 1;                  //Update flag
+      UPDATE = 1;                           //Update flag
   }
 }
 
-int main(void) { // main
+int main(void) {            // main
     __disable_irq();
     PLL_Init();
     LaunchPad_Init();
@@ -174,41 +171,30 @@ int main(void) { // main
     gameInit();                                       // data structure inits
     while (1) {
         if (UPDATE) {   //30hz
-            if(GAMESTART && !PAUSED){  //if game has started run this
-                if(UNPAUSED){
-                    ST7735_SetCursor(8, 2);
-                    ST7735_OutStringCool("      ", 2, ST7735_WHITE);    //Clears pause menu
-                    ST7735_SetCursor(7, 9);
-                    ST7735_OutStringCool("              ", 1, ST7735_WHITE);
-                    UNPAUSED = 0;
-                }
-                graphicsHandler(&thePlayer, &theEnemy, &playerBullet);  //handles most graphics
-                drawEnemyBullets();     //handles enemy bullet graphics
-                if(bossHPrefresh){
-                    drawIndicator();
-                    bossHPrefresh = 0;      //draws boss HP indicator and warp indicator
-                    ST7735_SetCursor(1, 0);
-                    printf("%3.3i", theEnemy.hp);
-                }
+            if(GAMESTART && !PAUSED){                                   // if game has started run this
+                if(UNPAUSED) clearPause();                              // clears pause menu
+                graphicsHandler(&thePlayer, &theEnemy, &playerBullet);  // handles most graphics
+                drawEnemyBullets();                                     // handles enemy bullet graphics
+                if(refresh) refreshUI(&theEnemy);                       // refreshing ingame ui
             } else if(GAMESTART && PAUSED){
-                pauseHandler(pauseCount);   //handles pause menu
-            } else {    //else do menus
-                menuHandler(&thePlayer, &theEnemy); //handles menus
+                pauseHandler(pauseCount);                               //handles pause menu
+            } else {
+                menuHandler(&thePlayer, &theEnemy);                     //handles menus
             }
-            UPDATE = 0; //flag reset
+            UPDATE = 0;         //flag reset
         }
-        while(GAMEOVER) gameEndHandler(&thePlayer);   //game end handlers
+        while(GAMEOVER) gameEndHandler(&thePlayer);                     //game end handlers
         while(WIN) winHandler(&theEnemy);
     }
 }
 
-void gameInit(){ // Flag inits
+void gameInit(){                                        // Game init
     ST7735_FillScreen(ST7735_BLACK);
       playerInit(&thePlayer, playerHPeasy);             // inits player
-      enemyInit(&theEnemy, enemyHPeasy);               // inits enemy
-      bulletInit(&thePlayer, &playerBullet);
-      phaseInit(enemyHPeasy);
-      setHPLED(&thePlayer);
+      enemyInit(&theEnemy, enemyHPeasy);                // inits enemy
+      bulletInit(&thePlayer, &playerBullet);            // inits bullet
+      phaseInit(enemyHPeasy);                           // sets Phase HPs
+      setHPLED(&thePlayer);                             // sets LEDS
       UPDATE = 0;
       HPFLAG = 1;
       ENEMYUPDATE = 1;
@@ -223,30 +209,31 @@ void gameInit(){ // Flag inits
       OPTIONSELECT = 0;
       LANGMODE = 0;
       MAINMENU = 0;
-      score = 0;
+      score = 0;                                        // Basically resets all global flags
       FIRSTUPDATE = 1;
       LORE = 0;
       CONTROLS = 0;
       LOREUPDATE = 0;
       WARPCounter = 0;
+      WARP = 0;
       switchDataOld = 0;
       PHASE = 0;
       activate1 = 0;
       activate2 = 0;
       activate3 = 0;
-      bossHPcounter = 0;
-      bossHPrefresh = 0;
+      refreshCounter = 0;
+      refresh = 0;
       PAUSED = 0;
       UNPAUSED = 0;
       INFO = 0;
       pauseCount = 3;
       for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
-          bulletReset(&theEnemy, i);
+          bulletReset(&theEnemy, i);                    // Inits enemy bullets
       }
 }
 
 uint8_t TExaS_LaunchPadLogicPB27PB26(void) {return (0x80 | ((GPIOB->DOUT31_0 >> 26) & 0x03));}
-void initInit(){
+void initInit(){                                      //A bunch of other inits
     ST7735_InitPrintf();
     ST7735_FillScreen(ST7735_BLACK);
     ADC_InitDual(ADC1, 4, 6, ADCVREF_VDDA);           // init Dual ADC

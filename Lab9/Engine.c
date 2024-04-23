@@ -33,7 +33,6 @@ extern uint8_t HPFLAG;
 extern uint8_t WARP;
 extern uint8_t PLAYERUPDATE;
 extern uint8_t ENEMYUPDATE;
-extern uint8_t coordCounter;
 extern uint8_t GAMEOVER;
 extern uint8_t CRASH;
 extern uint8_t bulletHit;
@@ -73,7 +72,7 @@ void enemyInit(Entity_t *theEnemy, uint16_t hp){    //Initializes enemy
     theEnemy->w = 25;
 }
 
-void bulletInit(Entity_t *thePlayer, Entity_t *Bullet){
+void bulletInit(Entity_t *thePlayer, Entity_t *Bullet){ //Initializes bullet
     Bullet->x = thePlayer->x;
     Bullet->y = thePlayer->y;
     Bullet->live = 0;
@@ -125,7 +124,6 @@ void updatePlayerCoords(Entity_t *Entity){
     } else {
         PLAYERUPDATE = 0;
     }
-    coordCounter = 0;
 }
 
 void updateEnemyCoords(Entity_t *Entity){   //this will MAYBE be implemented later
@@ -198,7 +196,7 @@ void updatePlayerBulletCoords(Entity_t *Bullet, Entity_t *thePlayer, Entity_t *t
 
         if((x < (theEnemy->x) && x > (theEnemy->x - 23)) && (y < (theEnemy->y + 23) && y > (theEnemy->y))){
             bulletHit = 1;
-            bulletInit(thePlayer, Bullet);
+            bulletInit(thePlayer, Bullet);          //bullet hit enemy?
             lastClear = 1;
             score++;
         } else if((x > 160 || x < 0) || (y > 128 || y < 0)){    //bullet hit wall?
@@ -239,8 +237,8 @@ void bulletCollisionCheck(Entity_t *Player, Entity_t *Bullet) { //WIP
 }
 
 
-
-uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *theBullet, Entity_t *theEnemy){ //Handles switch presses for player
+//Handles switch presses for player
+uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *theBullet, Entity_t *theEnemy){
     int8_t spdX, spdY;
     int16_t x, y;
     spdX = thePlayer->spdX;
@@ -249,7 +247,6 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
     y = thePlayer->y;
 
   if((A&RT) == RT){ //shoots bullet if avail
-
       return 1;
   }
   if((A&DWN) == DWN){   //Speed up
@@ -292,7 +289,6 @@ uint8_t SwitchHandler(uint32_t A, uint32_t B, Entity_t *thePlayer, Entity_t *the
 
 void setHPLED(Entity_t *thePlayer) {    //Sets HP LEDS based off player health
   HPFLAG = 0;
-  Sound_Start(HITP, HIT);
   if (thePlayer->hp >= 3) {
     LED_On(R3D | YEL | GRN);
   }
@@ -319,7 +315,7 @@ void updateEnemyHP(Entity_t *Enemy){    //if bullet hit update hp--
     }
 }
 
-void winHandler(Entity_t *theEnemy){
+void winHandler(Entity_t *theEnemy){    //Handles win stuff
     drawEnemyDeath(theEnemy);
     Sound_Start(EXPLP, Expl);
     Clock_Delay1ms(300);
@@ -339,7 +335,7 @@ void winHandler(Entity_t *theEnemy){
     }
 }
 
-void gameEndHandler(Entity_t *thePlayer){
+void gameEndHandler(Entity_t *thePlayer){   //Handles not win stuff
     drawPlayerDeath(thePlayer);
     if(CRASH){
         Sound_Start(CRASHP, Crash);
@@ -366,8 +362,3 @@ void gameEndHandler(Entity_t *thePlayer){
         }
     }
 }
-
-/*
-void newPLayerBullet() {
-}
-*/

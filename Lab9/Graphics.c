@@ -26,10 +26,12 @@ extern uint8_t FIRSTUPDATE;
 extern uint8_t bulletHit;
 extern uint8_t WARP;
 extern uint8_t pauseCount;
+extern uint8_t UNPAUSED;
+extern uint8_t refresh;
 
 extern Entity_t enemyBullets[];
 
-void graphicsHandler(Entity_t *thePlayer, Entity_t *theEnemy, Entity_t *playerBullet){
+void graphicsHandler(Entity_t *thePlayer, Entity_t *theEnemy, Entity_t *playerBullet){  //Main graphics handler
     drawPlayer(thePlayer);
     drawEnemy(theEnemy);
     if(playerBullet->live >= 1) drawPlayerBullet(playerBullet);
@@ -46,7 +48,7 @@ void drawPlayer(Entity_t *thePlayer){   //draw player
     PyOld = thePlayer->y;
 }
 
-void drawPlayerDeath(Entity_t *thePlayer){   //draw player
+void drawPlayerDeath(Entity_t *thePlayer){   //draw player death
     ST7735_DrawBitmap(thePlayer->y, thePlayer->x, explosionsmall, thePlayer->h, thePlayer->w);
 }
 
@@ -56,7 +58,7 @@ void drawEnemy(Entity_t *theEnemy){     //draw enemy
     ENEMYUPDATE = 0;
 }
 
-void drawEnemyDeath(Entity_t *theEnemy){     //draw enemy
+void drawEnemyDeath(Entity_t *theEnemy){     //draw enemy death
     ST7735_DrawBitmap(theEnemy->y, theEnemy->x, explosionbig, theEnemy->h, theEnemy->w);
 }
 
@@ -73,13 +75,13 @@ void clearPlayerBullet(){       //clears last instance of bullet
     lastClear = 0;
 }
 
-void drawIndicator(){
+void drawIndicator(){           //draws indicator for warp
     if(WARP) ST7735_DrawBitmap(1, 6, indicatorgreen, 5, 5);
     else ST7735_DrawBitmap(1, 6, indicator, 5, 5);
 }
 
 #define enemyBulletBuffer 64
-void drawEnemyBullets(){
+void drawEnemyBullets(){                                //Draws all enemy bullets if they are live
     for(uint8_t i = 0; i < enemyBulletBuffer; i++){
         if(enemyBullets[i].live >= 1){
             ST7735_DrawBitmap(enemyBullets[i].yOld, enemyBullets[i].xOld, enemy_BulletOld, 5, 5);
@@ -93,6 +95,23 @@ void drawEnemyBullets(){
         }
     }
 }
+
+void clearPause(){              //Clears pause menu
+    ST7735_SetCursor(8, 2);
+    ST7735_OutStringCool("      ", 2, ST7735_WHITE);
+    ST7735_SetCursor(7, 9);
+    ST7735_OutStringCool("              ", 1, ST7735_WHITE);
+    UNPAUSED = 0;
+}
+
+void refreshUI(Entity_t *theEnemy){     //draws boss HP indicator and warp indicator
+    drawIndicator();
+    refresh = 0;
+    ST7735_SetCursor(1, 0);
+    printf("%3.3i", theEnemy->hp);
+}
+
+/*                                 MENUS                                   */
 
 void drawLangScrn(){        //Language select screen
     ST7735_SetCursor(6, 1);

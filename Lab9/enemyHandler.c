@@ -28,7 +28,7 @@ extern uint8_t HPFLAG;
 #define enemyBulletBuffer 64
 Entity_t enemyBullets[enemyBulletBuffer];
 
-void phaseTimer(){
+void phaseTimer(){  //Basically an ISR but not really
     bulletCounter1++;
     bulletCounter2++;
     bulletCounter3++;
@@ -48,11 +48,11 @@ void phaseTimer(){
 
 void phaseInit(uint8_t hp){
     phase0 = hp - hp/10;    //90%
-    phase1 = hp/2 + hp/4;    //75%
-    phase2 = hp/2;    //50%
-    phase3 = hp/4;    //25%
-    phase4 = hp/10;    //10%
-    phase5 = 0;    //0%
+    phase1 = hp/2 + hp/4;   //75%
+    phase2 = hp/2;          //50%
+    phase3 = hp/4;          //25%
+    phase4 = hp/10;         //10%
+    phase5 = 0;             //0%
 }
 
 
@@ -75,7 +75,7 @@ void Phase_Switcher(Entity_t *Enemy){
     }
 }
 
-void Phase_Handler(){
+void Phase_Handler(){   //Activates and sets the time of each attack pattern
     if(PHASE == 0){
         activate1 = 1;
         activate2 = 0;
@@ -122,7 +122,7 @@ void Phase_Handler(){
 
 uint8_t curBullet;
 
-void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){
+void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){ //Actually does the attack patterns
     uint8_t x1, x2, x3;
     if(PHASE == 0) x1 = 4;
     else if(PHASE == 1) x1 = 4, x2 = 2;
@@ -143,7 +143,7 @@ void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){
         setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, -2, 2, x2);
         curBullet++;
         if(curBullet > enemyBulletBuffer) curBullet = 0;
-        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 0, 0, x2);       //this is hopefully like a spray
+        setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 0, 0, x2);
         curBullet++;
         if(curBullet > enemyBulletBuffer) curBullet = 0;
         setEnemyBulletTrajectory(thePlayer, theEnemy, curBullet, 2, -2, x2);
@@ -154,7 +154,7 @@ void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){
     }
 }
 
-void circleTrajectory(){
+void circleTrajectory(){    //More like a diamond
     int8_t y = -4;
 
     for(int8_t x = 0; x < 4; x++){
@@ -240,7 +240,8 @@ void setEnemyBulletTrajectory(Entity_t *thePlayer, Entity_t *theEnemy, uint8_t i
     }
 }
 
-
+#define HIT 1
+#define HITP 2500
 
 void updateEnemyBulletCoords(Entity_t *thePlayer, Entity_t *theEnemy, uint8_t i){
     int8_t spdX, spdY;
@@ -260,7 +261,8 @@ void updateEnemyBulletCoords(Entity_t *thePlayer, Entity_t *theEnemy, uint8_t i)
 
         if((x < (thePlayer->x + 3) && x > (thePlayer->x - 9)) && (y < (thePlayer->y + 9) && y > (thePlayer->y - 3))){
             HPFLAG = 1;
-            thePlayer->hp = thePlayer->hp - 1;
+            Sound_Start(HITP, HIT);
+            thePlayer->hp = thePlayer->hp - 1;                  //bullet hit player?
             enemyBullets[i].xHit = enemyBullets[i].x;
             enemyBullets[i].yHit = enemyBullets[i].y;
             bulletReset(theEnemy, i);
@@ -278,7 +280,7 @@ void updateEnemyBulletCoords(Entity_t *thePlayer, Entity_t *theEnemy, uint8_t i)
 }
 
 uint8_t type = 1;
-void bulletReset(Entity_t *theEnemy, uint8_t i){
+void bulletReset(Entity_t *theEnemy, uint8_t i){    //resets bullets
     enemyBullets[i].x = theEnemy->x - 10;
     enemyBullets[i].y = theEnemy->y + 10;
     enemyBullets[i].xOld = theEnemy->x - 10;
