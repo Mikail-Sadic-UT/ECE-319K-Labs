@@ -23,6 +23,8 @@ void clearPause();
 
 void refreshUI(Entity_t *theEnemy);
 
+void drawIndicatorLocation();
+
 void drawLangScrn();
 
 void drawEngOpt();

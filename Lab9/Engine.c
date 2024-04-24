@@ -47,6 +47,8 @@ extern uint8_t PAUSED;
 uint32_t collisioncheck = 0;
 uint8_t CONTINUE;
 
+Entity_t warpLocation;
+
 #define HIT 1
 #define HITP 3000
 #define Crash 2
@@ -73,8 +75,8 @@ void enemyInit(Entity_t *theEnemy, uint16_t hp){    //Initializes enemy
 }
 
 void bulletInit(Entity_t *thePlayer, Entity_t *Bullet){ //Initializes bullet
-    Bullet->x = thePlayer->x;
-    Bullet->y = thePlayer->y;
+    Bullet->x = thePlayer->x - 6;
+    Bullet->y = thePlayer->y + 6;
     Bullet->live = 0;
 }
 
@@ -126,6 +128,20 @@ void updatePlayerCoords(Entity_t *Entity){
     }
 }
 
+void updateIndicatorCoords(Entity_t *thePlayer){
+    int16_t x, y;
+    x = (thePlayer->x - 3) + (thePlayer->spdX<<5);
+    if(x > 159) x = 159;
+    if(x < 5) x = 5;
+
+    y = (thePlayer->y + 3) + (thePlayer->spdY<<5);
+    if(y > 123) y = 123;
+    if(y < 0) y = 0;
+
+    warpLocation.x = x;
+    warpLocation.y = y;
+}
+
 void updateEnemyCoords(Entity_t *Entity){   //this will MAYBE be implemented later
     int8_t spdX, spdY;
     int16_t xOld, yOld, x, y;
@@ -164,8 +180,8 @@ void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Enti
         n2 = dy;
         if(n2 < 0) n2*=-1;
         b = n1 + n2;
-        dx = dx<<3;
-        dy = dy<<3;
+        dx = (dx<<3) + (dx<<1);
+        dy = (dy<<3) + (dy<<1);
         spdX = dx/b;
         spdY = dy/b;
         spdY = spdY*-1;

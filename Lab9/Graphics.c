@@ -37,29 +37,36 @@ extern uint8_t refresh;
 extern uint8_t Mode;
 
 extern Entity_t enemyBullets[];
+extern Entity_t warpLocation;
 
 void graphicsHandler(Entity_t *thePlayer, Entity_t *theEnemy, Entity_t *playerBullet){  //Main graphics handler
     drawPlayer(thePlayer);
     drawEnemy(theEnemy);
+    //drawIndicatorLocation(); //WIP dont know if this will ship with final game as it's a bit distracting, but it shows the location of the warp
     if(playerBullet->live >= 1) drawPlayerBullet(playerBullet);
     if(lastClear) clearPlayerBullet();
     FIRSTUPDATE = 0;
 }
 
+void drawIndicatorLocation(){
+    ST7735_DrawBitmap(warpLocation.yOld, warpLocation.xOld, enemy_BulletOld, 5, 5);
+    if(WARP) ST7735_DrawBitmap(warpLocation.y, warpLocation.x, indicatorgreen, 5, 5);
+    else ST7735_DrawBitmap(warpLocation.y, warpLocation.x, indicator, 5, 5);
+    warpLocation.xOld = warpLocation.x;
+    warpLocation.yOld = warpLocation.y;
+}
 
-uint8_t PxOld = 0, PyOld = 0;
 void drawPlayer(Entity_t *thePlayer){   //draw player
-    ST7735_DrawBitmap(PyOld, PxOld, playerOld, thePlayer->h, thePlayer->w);
+    ST7735_DrawBitmap(thePlayer->yOld, thePlayer->xOld, playerOld, thePlayer->h, thePlayer->w);
     ST7735_DrawBitmap(thePlayer->y, thePlayer->x, player, thePlayer->h, thePlayer->w);
-    PxOld = thePlayer->x;
-    PyOld = thePlayer->y;
+    thePlayer->xOld = thePlayer->x;
+    thePlayer->yOld = thePlayer->y;
 }
 
 void drawPlayerDeath(Entity_t *thePlayer){   //draw player death
     ST7735_DrawBitmap(thePlayer->y, thePlayer->x, explosionsmall, thePlayer->h, thePlayer->w);
 }
 
-uint8_t ExOld, EyOld;
 void drawEnemy(Entity_t *theEnemy){     //draw enemy
     ST7735_DrawBitmap(theEnemy->y, theEnemy->x, enemy, theEnemy->h, theEnemy->w);
     ENEMYUPDATE = 0;

@@ -108,15 +108,15 @@ void Phase_Handler(){   //Activates and sets the time of each attack pattern
         activate1 = 1;
         activate2 = 1;
         activate3 = 1;
-        bulletTimer1 = 10;
-        bulletTimer2 = 20;
-        bulletTimer3 = 75;
+        bulletTimer1 = 30;
+        bulletTimer2 = 10;
+        bulletTimer3 = 60;
     }
     else if(PHASE == 5){
         activate1 = 0;
         activate2 = 0;
         activate3 = 1;
-        bulletTimer3 = 15;
+        bulletTimer3 = 10;
     }
 }
 
@@ -125,10 +125,10 @@ uint8_t curBullet;
 void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){ //Actually does the attack patterns
     uint8_t x1, x2, x3;
     if(PHASE == 0) x1 = 4;
-    else if(PHASE == 1) x1 = 4, x2 = 2;
-    else if(PHASE == 2) x1 = 5, x2 = 3;
+    else if(PHASE == 1) x1 = 5, x2 = 2;
+    else if(PHASE == 2) x1 = 6, x2 = 3;
     else if(PHASE == 3) x1 = 6, x2 = 4;
-    else if(PHASE == 4) x1 = 5, x2 = 3;
+    else if(PHASE == 4) x1 = 8, x2 = 3;
 
     if(pattern1){ //shoot 1 bullet at player
         pattern1 = 0;

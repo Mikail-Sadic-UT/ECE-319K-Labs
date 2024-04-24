@@ -145,6 +145,7 @@ void TIMG12_IRQHandler(void){           //Game Engine
               //switchDataOld = 1;    <--- for button mash
           } else if(switchData == 0 && switchDataOld == 1) switchDataOld = 0;
           updateCoords(&thePlayer);                         //Updates player coord
+          updateIndicatorCoords(&thePlayer);
           if(bulletHit) updateEnemyHP(&theEnemy);           //Updates enemy HP on hit
           collisionCheck(&thePlayer, &theEnemy);            //Checks collision
           if(HPFLAG) setHPLED(&thePlayer);                  //Sets HPLEDS based on player HP

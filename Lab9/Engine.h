@@ -30,6 +30,8 @@ void updateCoords(Entity_t *thePlayer); //Updates coords of entity
 
 void updatePlayerCoords(Entity_t *Entity);  //Updates player coords
 
+void updateIndicatorCoords(Entity_t *thePlayer);
+
 void updateEnemyCoords(Entity_t *Entity);   //Updates enemy coords (WIP)
 
 void setPlayerBulletTrajectory(Entity_t *thePlayer, Entity_t *playerBullet, Entity_t *theEnemy);
