@@ -17,6 +17,8 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy);
 
 void controls();
 
+void Telang();
+
 void lore();
 
 void win();

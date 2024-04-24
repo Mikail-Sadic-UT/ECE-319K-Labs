@@ -60,6 +60,7 @@ extern uint8_t LANGSELECT;
 extern uint8_t GAMESTART;
 extern uint8_t CONTINUE;
 extern uint8_t Mode;
+uint8_t TELANG;
 
 void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){  //Handles all menus
     if(LANGSELECT) langSelect();
@@ -68,6 +69,7 @@ void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){  //Handles all menus
     if(CONTROLS) controls();
     if(LORE) lore();
     if(INFO) info();
+    if(TELANG) Telang();
 }
 
 void pauseHandler(int8_t pauseCount){   //handles pauses
@@ -197,6 +199,9 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
     }
 }
 
+#define Crash 2
+#define CRASHP 5000
+
 void controls(){
     if(LANGMODE == 1) controlsEng();
     if(LANGMODE == 2) controlsBH();
@@ -204,6 +209,20 @@ void controls(){
         MAINMENU = 1;
         CONTROLS = 0;
         ST7735_FillScreen(ST7735_BLACK);
+        Clock_Delay1ms(250);
+    }
+    if(switchDataB > 0) {
+        Sound_Start(CRASHP, Crash);
+        TELANG = 1;
+        CONTROLS = 0;
+    }
+}
+
+void Telang(){
+    drawTelang();
+    if(switchDataA > 0){
+        MAINMENU = 1;
+        TELANG = 0;
         Clock_Delay1ms(250);
     }
 }

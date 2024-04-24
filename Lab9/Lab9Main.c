@@ -90,6 +90,7 @@ uint8_t PAUSED;
 uint8_t UNPAUSED;
 int8_t pauseCount;
 uint8_t Mode;
+extern uint8_t TELANG;
 
 extern uint8_t bulletCounter1, bulletCounter2, bulletCounter3;
 extern uint8_t bulletTimer1, bulletTimer2, bulletTimer3;
@@ -236,6 +237,7 @@ void gameInit(){                                        // Game init
       UNPAUSED = 0;
       INFO = 0;
       pauseCount = 3;
+      TELANG = 0;
       for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
           bulletReset(&theEnemy, i);                    // Inits enemy bullets
       }

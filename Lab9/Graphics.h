@@ -59,4 +59,6 @@ void answersEng();
 
 void answersBH();
 
+void drawTelang();
+
 #endif

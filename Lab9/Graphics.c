@@ -125,6 +125,10 @@ void refreshUI(Entity_t *theEnemy){     //draws boss HP indicator and warp indic
     printf("%3.3i", theEnemy->hp);
 }
 
+void drawTelang(){
+    ST7735_DrawBitmap(0, 160, telang, 128, 160);
+}
+
 /*                                 MENUS                                   */
 
 void drawLangScrn(){        //Language select screen
