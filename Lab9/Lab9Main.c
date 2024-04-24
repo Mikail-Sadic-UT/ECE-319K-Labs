@@ -45,6 +45,7 @@
 #define enemyHPnormal 77
 #define enemyHPhard 87
 #define enemyHPnohit 97
+#define TelangHP 127
 
 #define playerBulletBuffer 8
 #define enemyBulletBuffer 64
@@ -91,6 +92,7 @@ uint8_t UNPAUSED;
 int8_t pauseCount;
 uint8_t Mode;
 extern uint8_t TELANG;
+extern uint8_t TelangMode;
 
 extern uint8_t bulletCounter1, bulletCounter2, bulletCounter3;
 extern uint8_t bulletTimer1, bulletTimer2, bulletTimer3;
@@ -241,6 +243,7 @@ void gameInit(){                                        // Game init
       INFO = 0;
       pauseCount = 3;
       TELANG = 0;
+      TelangMode = 0;
       for(uint8_t i = 0; i < enemyBulletBuffer; i++) {
           bulletReset(&theEnemy, i);                    // Inits enemy bullets
       }
@@ -248,7 +251,14 @@ void gameInit(){                                        // Game init
 
 void reset(){                               // Resets game to main menu without resetting everything (Keeps language and current gamemode)
     ST7735_FillScreen(ST7735_BLACK);
-    if(Mode == Demo){
+    if(TelangMode){
+        playerInit(&thePlayer, playerHPnohit);             // Inits player
+        enemyInit(&theEnemy, TelangHP);                // Inits enemy
+        bulletInit(&thePlayer, &playerBullet);            // Inits bullet
+        phaseInit(TelangHP);                           // Sets Phase HPs
+        setHPLED(&thePlayer);                             // Sets LEDS
+    }
+    else if(Mode == Demo){
         playerInit(&thePlayer, playerHPdemo);             // Inits player
         enemyInit(&theEnemy, enemyHPdemo);                // Inits enemy
         bulletInit(&thePlayer, &playerBullet);            // Inits bullet

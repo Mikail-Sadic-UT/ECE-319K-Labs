@@ -35,6 +35,7 @@ extern uint8_t pauseCount;
 extern uint8_t UNPAUSED;
 extern uint8_t refresh;
 extern uint8_t Mode;
+extern uint8_t TelangMode;
 
 extern Entity_t enemyBullets[];
 extern Entity_t warpLocation;
@@ -68,7 +69,8 @@ void drawPlayerDeath(Entity_t *thePlayer){   //draw player death
 }
 
 void drawEnemy(Entity_t *theEnemy){     //draw enemy
-    ST7735_DrawBitmap(theEnemy->y, theEnemy->x, enemy, theEnemy->h, theEnemy->w);
+    if(TelangMode) ST7735_DrawBitmap(theEnemy->y, theEnemy->x, telangMan, theEnemy->h, theEnemy->w);
+    else ST7735_DrawBitmap(theEnemy->y, theEnemy->x, enemy, theEnemy->h, theEnemy->w);
     ENEMYUPDATE = 0;
 }
 
@@ -220,7 +222,11 @@ void drawTitleEng(){
     ST7735_DrawBitmap(117, 156, joystick, 10, 10);
 
     ST7735_SetCursor(14, 12);
-    if(Mode == Demo) {
+    if(TelangMode){
+        ST7735_OutStringCool("Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("TELANG", 1, ST7735_PURPLE);
+    }
+    else if(Mode == Demo) {
         ST7735_OutStringCool("  Mode: ", 1, ST7735_WHITE);
         ST7735_OutStringCool("Demo", 1, ST7735_WHITE);
     }
@@ -262,7 +268,11 @@ void drawTitleBH(){
     ST7735_DrawBitmap(117, 156, joystick, 10, 10);
 
     ST7735_SetCursor(12, 12);
-    if(Mode == Demo) {
+    if(TelangMode){
+        ST7735_OutStringCool("  Mode: ", 1, ST7735_WHITE);
+        ST7735_OutStringCool("TELANG", 1, ST7735_PURPLE);
+    }
+    else if(Mode == Demo) {
         ST7735_OutStringCool("    Mode: ", 1, ST7735_WHITE);
         ST7735_OutStringCool("Demo", 1, ST7735_WHITE);
     }

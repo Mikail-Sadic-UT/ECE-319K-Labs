@@ -24,6 +24,7 @@ uint8_t activate1, activate2, activate3;
 uint8_t pattern1, pattern2, pattern3;
 uint8_t PHASE;
 extern uint8_t HPFLAG;
+extern uint8_t TelangMode;
 
 #define enemyBulletBuffer 64
 Entity_t enemyBullets[enemyBulletBuffer];
@@ -76,7 +77,15 @@ void Phase_Switcher(Entity_t *Enemy){
 }
 
 void Phase_Handler(){   //Activates and sets the time of each attack pattern
-    if(PHASE == 0){
+    if(TelangMode){
+        activate1 = 1;
+        activate2 = 1;
+        activate3 = 1;
+        bulletTimer1 = 20;
+        bulletTimer2 = 10;
+        bulletTimer3 = 45;
+    }
+    else if(PHASE == 0){
         activate1 = 1;
         activate2 = 0;
         activate3 = 0;
@@ -124,7 +133,8 @@ uint8_t curBullet;
 
 void Pattern_Executer(Entity_t *thePlayer, Entity_t *theEnemy){ //Actually does the attack patterns
     uint8_t x1, x2, x3;
-    if(PHASE == 0) x1 = 4;
+    if(TelangMode) x1 = 8, x2 = 4;
+    else if(PHASE == 0) x1 = 4;
     else if(PHASE == 1) x1 = 5, x2 = 2;
     else if(PHASE == 2) x1 = 6, x2 = 3;
     else if(PHASE == 3) x1 = 6, x2 = 4;

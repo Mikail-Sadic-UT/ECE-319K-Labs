@@ -39,6 +39,10 @@
 #define enemyHPhard 87
 #define enemyHPnohit 97
 
+#define Crash 2
+#define CRASHP 5000
+#define TelangHP 127
+
 #define Demo 0
 #define Easy 1
 #define Norm 2
@@ -61,12 +65,13 @@ extern uint8_t GAMESTART;
 extern uint8_t CONTINUE;
 extern uint8_t Mode;
 uint8_t TELANG;
+uint8_t TelangMode;
 
 void menuHandler(Entity_t *thePlayer, Entity_t *theEnemy){  //Handles all menus
     if(LANGSELECT) langSelect();
     if(MAINMENU) mainMenu();
     if(OPTIONSELECT) Options(thePlayer, theEnemy);
-    if(CONTROLS) controls();
+    if(CONTROLS) controls(thePlayer, theEnemy);
     if(LORE) lore();
     if(INFO) info();
     if(TELANG) Telang();
@@ -151,6 +156,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Mode = Demo;
         OPTIONSELECT = 0;
         MAINMENU = 1;
+        TelangMode = 0;
         playerInit(thePlayer, playerHPdemo);            // inits player
         enemyInit(theEnemy, enemyHPdemo);               // inits enemy
         phaseInit(enemyHPdemo);
@@ -161,6 +167,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Mode = Easy;
         OPTIONSELECT = 0;
         MAINMENU = 1;
+        TelangMode = 0;
         playerInit(thePlayer, playerHPeasy);            // inits player
         enemyInit(theEnemy, enemyHPeasy);               // inits enemy
         phaseInit(enemyHPeasy);
@@ -171,6 +178,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Mode = Norm;
         OPTIONSELECT = 0;
         MAINMENU = 1;
+        TelangMode = 0;
         playerInit(thePlayer, playerHPnormal);          // inits player
         enemyInit(theEnemy, enemyHPnormal);             // inits enemy
         phaseInit(enemyHPnormal);
@@ -181,6 +189,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Mode = Hard;
         OPTIONSELECT = 0;
         MAINMENU = 1;
+        TelangMode = 0;
         playerInit(thePlayer, playerHPhard);            // inits player
         enemyInit(theEnemy, enemyHPhard);               // inits enemy
         phaseInit(enemyHPhard);
@@ -191,6 +200,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
         Mode = NoHi;
         OPTIONSELECT = 0;
         MAINMENU = 1;
+        TelangMode = 0;
         playerInit(thePlayer, playerHPnohit);           // inits player
         enemyInit(theEnemy, enemyHPnohit);              // inits enemy
         phaseInit(enemyHPnohit);
@@ -199,10 +209,7 @@ void Options(Entity_t *thePlayer, Entity_t *theEnemy){  //Sets difficulty (playe
     }
 }
 
-#define Crash 2
-#define CRASHP 5000
-
-void controls(){
+void controls(Entity_t *thePlayer, Entity_t *theEnemy){
     if(LANGMODE == 1) controlsEng();
     if(LANGMODE == 2) controlsBH();
     if(switchDataA > 0){
@@ -213,7 +220,11 @@ void controls(){
     }
     if(switchDataB > 0) {
         Sound_Start(CRASHP, Crash);
+        playerInit(thePlayer, playerHPnohit);           // inits player
+        enemyInit(theEnemy, TelangHP);              // inits enemy
+        phaseInit(TelangHP);
         TELANG = 1;
+        TelangMode = 1;
         CONTROLS = 0;
     }
 }
