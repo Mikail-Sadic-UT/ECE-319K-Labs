@@ -231,6 +231,9 @@ void gameInit(){                                        // Game init
       activate1 = 0;
       activate2 = 0;
       activate3 = 0;
+      bulletCounter1 = 0;
+      bulletCounter2 = 0;
+      bulletCounter3 = 0;
       refreshCounter = 0;
       refresh = 0;
       PAUSED = 0;
@@ -242,7 +245,6 @@ void gameInit(){                                        // Game init
           bulletReset(&theEnemy, i);                    // Inits enemy bullets
       }
 }
-
 
 void reset(){                               // Resets game to main menu without resetting everything (Keeps language and current gamemode)
     ST7735_FillScreen(ST7735_BLACK);
@@ -306,6 +308,9 @@ void reset(){                               // Resets game to main menu without 
          activate1 = 0;
          activate2 = 0;
          activate3 = 0;
+         bulletCounter1 = 0;
+         bulletCounter2 = 0;
+         bulletCounter3 = 0;
          refreshCounter = 0;
          refresh = 0;
          PAUSED = 0;
