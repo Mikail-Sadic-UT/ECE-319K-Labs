@@ -334,17 +334,17 @@ void updateEnemyHP(Entity_t *Enemy){    //if bullet hit update hp--
 void winHandler(Entity_t *theEnemy){    //Handles win stuff
     drawEnemyDeath(theEnemy);
     Sound_Start(EXPLP, Expl);
-    Clock_Delay1ms(300);
+    Clock_Delay1ms(250);
     win();
-    Clock_Delay1ms(1000);
+    Clock_Delay1ms(500);
     while(WIN){
         if(switchDataA > 0) {
             answers();
             while(WIN){
                 if(switchDataA > 0){
-                    Clock_Delay1ms(500);
-                    reset();
                     Clock_Delay1ms(250);
+                    reset();
+                    Clock_Delay1ms(100);
                 }
             }
         }
@@ -369,12 +369,12 @@ void gameEndHandler(Entity_t *thePlayer){   //Handles not win stuff
         ST7735_OutStringCool("     resetujes     ", 1, ST7735_WHITE);
     }
     lose();
-    Clock_Delay1ms(2000);
+    Clock_Delay1ms(500);
     while(GAMEOVER){
         if(switchDataA > 0){
-            Clock_Delay1ms(1000);
-            reset();
             Clock_Delay1ms(250);
+            reset();
+            Clock_Delay1ms(100);
         }
     }
 }
